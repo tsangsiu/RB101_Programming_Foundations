@@ -15,7 +15,7 @@ def prompt(message)
 end
 
 def valid_number?(num)
-  num.to_i != 0
+  !!(num =~ /^(\+|-)?\d*\.?\d*$/)
 end
 
 def operation_to_message(operation)
