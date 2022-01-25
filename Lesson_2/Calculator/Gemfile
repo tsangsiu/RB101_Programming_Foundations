@@ -1,0 +1,4 @@
+source 'https://rubygems.org'
+
+# https://github.com/piotrmurach/tty-prompt
+gem "tty-prompt"

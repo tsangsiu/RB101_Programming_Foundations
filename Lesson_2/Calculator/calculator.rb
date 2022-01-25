@@ -3,25 +3,36 @@
 # perform the operation on the two numbers
 # output the result
 
-puts "Welcome to Calculator!"
+require "tty-prompt"
+prompt = TTY::Prompt.new
 
-puts "What's the first number?"
+def add_prompt(message)
+  "=> #{message}"
+end
+
+def prompt(message)
+  puts add_prompt(message)
+end
+
+prompt("Welcome to Calculator!")
+
+prompt("What's the first number?")
 number1 = gets.chomp
 
-puts "What's the second number?"
+prompt("What's the second number?")
 number2 = gets.chomp
 
-puts "What operation would you like to perform? 1) add 2) subtract 3) multiply 4) divide"
-operator = gets.chomp
+operation = prompt.select(add_prompt("What operation would you like to perform?"),
+                          %w(Addition Subtraction Multiplication Division))
 
-if operator == '1'
+if operation == 'Addition'
   result = number1.to_i + number2.to_i
-elsif operator == '2'
+elsif operation == 'Subtraction'
   result = number1.to_i - number2.to_i
-elsif operator == '3'
+elsif operation == 'Multiplication'
   result = number1.to_i * number2.to_i
-elsif operator == '4'
+elsif operation == 'Division'
   result = number1.to_f / number2.to_f
 end
 
-puts "The result is #{result}"
+prompt("The result is #{result}.")
