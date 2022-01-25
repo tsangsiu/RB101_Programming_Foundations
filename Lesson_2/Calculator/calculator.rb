@@ -19,15 +19,16 @@ def valid_number?(num)
 end
 
 def operation_to_message(operation)
-  case operation
-  when 'Addition'       then 'Adding'
-  when 'Subtraction'    then 'Subtracting'
-  when 'Multiplication' then 'Multiplying'
-  when 'Division'       then 'Dividing'
-  end
+  message = case operation
+            when 'Addition'       then 'Adding'
+            when 'Subtraction'    then 'Subtracting'
+            when 'Multiplication' then 'Multiplying'
+            when 'Division'       then 'Dividing'
+            end
+  message
 end
 
-prompt("Welcome to Calculator! Enter you name:")
+prompt "Welcome to Calculator! Enter you name:"
 
 name = ''
 loop do
@@ -40,30 +41,30 @@ loop do
   end
 end
 
-prompt("Hi #{name}!")
+prompt "Hi #{name}!"
 
 loop do # main loop
   number1 = ''
   loop do
-    prompt("What's the first number?")
+    prompt "What's the first number?"
     number1 = gets.chomp
 
     if valid_number?(number1)
       break
     else
-      prompt("Hmm... that doesn't look like a valid number.")
+      prompt "Hmm... that doesn't look like a valid number."
     end
   end
 
   number2 = ''
   loop do
-    prompt("What's the second number?")
+    prompt "What's the second number?"
     number2 = gets.chomp
 
     if valid_number?(number2)
       break
     else
-      prompt("Hmm... that doesn't look like a valid number.")
+      prompt "Hmm... that doesn't look like a valid number."
     end
   end
 
@@ -89,7 +90,7 @@ loop do # main loop
            when 'Division' then number1.to_f / number2.to_f
            end
 
-  prompt("The result is #{result}.")
+  prompt "The result is #{result}."
 
   answer = prompt.select(add_prompt("Do you want to perform another calculation?"),
                          %w(Yes No),
