@@ -81,7 +81,12 @@ loop do # main loop
                             %w(Addition Subtraction Multiplication Division),
                             cycle: true)
 
-  prompt "#{operation_to_message(operation)} the two numbers..."
+  1.upto(5) do |i|
+    print "\r#{add_prompt("#{operation_to_message(operation)} the two numbers")}#{'.' * i}"
+    $stdout.flush
+    sleep 0.4
+  end
+  print "\n"
 
   result = case operation
            when 'Addition' then number1.to_i + number2.to_i
