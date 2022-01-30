@@ -6,6 +6,9 @@
 require "tty-prompt"
 prompt = TTY::Prompt.new
 
+require 'yaml'
+MESSAGES = YAML.load_file('messages.yml')
+
 def add_prompt(message)
   "=> #{message}"
 end
@@ -28,43 +31,43 @@ def operation_to_message(operation)
   message
 end
 
-prompt "Welcome to Calculator! Enter you name:"
+prompt MESSAGES['welcome']
 
 name = ''
 loop do
   name = gets.chomp
 
   if name.empty?
-    prompt "Make sure to use a valid name."
+    prompt MESSAGES['valid_name']
   else
     break
   end
 end
 
-prompt "Hi #{name}!"
+prompt format(MESSAGES['greeting'], name: name)
 
 loop do # main loop
   number1 = ''
   loop do
-    prompt "What's the first number?"
+    prompt MESSAGES['first_number']
     number1 = gets.chomp
 
     if valid_number?(number1)
       break
     else
-      prompt "Hmm... that doesn't look like a valid number."
+      prompt MESSAGES['not_valid_number']
     end
   end
 
   number2 = ''
   loop do
-    prompt "What's the second number?"
+    prompt MESSAGES['second_number']
     number2 = gets.chomp
 
     if valid_number?(number2)
       break
     else
-      prompt "Hmm... that doesn't look like a valid number."
+      prompt MESSAGES['not_valid_number']
     end
   end
 
@@ -77,12 +80,13 @@ loop do # main loop
   #   4. Division
   # MSG
 
-  operation = prompt.select(add_prompt("What operation would you like to perform?"),
+  operation = prompt.select(add_prompt(MESSAGES['select_oepration']),
                             %w(Addition Subtraction Multiplication Division),
                             cycle: true)
 
   1.upto(5) do |i|
-    print "\r#{add_prompt("#{operation_to_message(operation)} the two numbers")}#{'.' * i}"
+    print (format(MESSAGES['calculating'], operation_to_message: operation_to_message(operation)) + "#{'.' * i}")
+    # print "\r#{add_prompt("#{operation_to_message(operation)} the two numbers")}#{'.' * i}"
     $stdout.flush
     sleep 0.4
   end
@@ -95,12 +99,12 @@ loop do # main loop
            when 'Division' then number1.to_f / number2.to_f
            end
 
-  prompt "The result is #{result}."
+  prompt format(MESSAGES['show_result'], result: result)
 
-  answer = prompt.select(add_prompt("Do you want to perform another calculation?"),
+  answer = prompt.select(add_prompt(MESSAGES['calculate_again?']),
                          %w(Yes No),
                          cycle: true)
   break unless answer == 'Yes'
 end
 
-prompt "Thank you for using Calculator! Good bye!"
+prompt MESSAGES['thank_you']
