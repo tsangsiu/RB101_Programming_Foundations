@@ -9,6 +9,10 @@ prompt = TTY::Prompt.new
 require 'yaml'
 MESSAGES = YAML.load_file('messages.yml')
 
+def messages(message, language = 'English')
+  MESSAGES[language][message]
+end
+
 def add_prompt(message)
   "=> #{message}"
 end
@@ -21,53 +25,94 @@ def valid_number?(num)
   !!(num =~ /^(\+|-)?\d*\.?\d*$/ and num != '.')
 end
 
-def operation_to_message(operation)
-  message = case operation
-            when 'Addition'       then 'Adding'
-            when 'Subtraction'    then 'Subtracting'
-            when 'Multiplication' then 'Multiplying'
-            when 'Division'       then 'Dividing'
+def languages_to_choose
+  ["English", "繁體中文"]
+end
+
+def language_to_operation(language = "English")
+  case language
+  when "English"
+    ["Addition", "Subtraction", "Multiplication", "Division"]
+  when "繁體中文"
+    ["加法", "減法", "乘法", "除法"]
+  end
+end
+
+def operation_to_code(operation, language = "English")
+  language_to_operation(language).index(operation)
+end
+
+def language_to_yes_no(language = "English")
+  case language
+  when "English"
+    ["Yes", "No"]
+  when "繁體中文"
+    ["是", "否"]
+  end
+end
+
+def yes_no_to_code(yes_no, language = "English")
+  language_to_yes_no(language).index(yes_no)
+end
+
+def operation_to_message(operation, language = "English")
+  message = case language
+            when "English"
+              case operation
+              when 'Addition'       then 'Adding'
+              when 'Subtraction'    then 'Subtracting'
+              when 'Multiplication' then 'Multiplying'
+              when 'Division'       then 'Dividing'
+              end
+            when "繁體中文"
+              "相#{operation[0]}"
             end
   message
 end
 
-prompt MESSAGES['welcome']
+# main program
+
+language = prompt.select(add_prompt(messages('choose_language')),
+                         languages_to_choose,
+                         cycle: true)
+
+prompt messages('welcome', language)
 
 name = ''
 loop do
   name = gets.chomp
 
   if name.empty?
-    prompt MESSAGES['valid_name']
+    prompt messages('valid_name', language)
   else
     break
   end
 end
 
-prompt format(MESSAGES['greeting'], name: name)
+prompt format(messages('greeting', language), name: name)
 
 loop do # main loop
   number1 = ''
   loop do
-    prompt MESSAGES['first_number']
+    prompt messages('first_number', language)
     number1 = gets.chomp
 
     if valid_number?(number1)
       break
     else
-      prompt MESSAGES['not_valid_number']
+      prompt messages('not_valid_number', language)
     end
   end
 
   number2 = ''
   loop do
-    prompt MESSAGES['second_number']
+    prompt messages('second_number', language)
     number2 = gets.chomp
 
     if valid_number?(number2)
       break
     else
-      prompt MESSAGES['not_valid_number']
+      prompt messages('not_valid_number', language)
     end
   end
 
@@ -80,31 +125,30 @@ loop do # main loop
   #   4. Division
   # MSG
 
-  operation = prompt.select(add_prompt(MESSAGES['select_oepration']),
-                            %w(Addition Subtraction Multiplication Division),
+  operation = prompt.select(add_prompt(messages('select_operation', language)),
+                            language_to_operation(language),
                             cycle: true)
 
-  1.upto(5) do |i|
-    print (format(MESSAGES['calculating'], operation_to_message: operation_to_message(operation)) + "#{'.' * i}")
-    # print "\r#{add_prompt("#{operation_to_message(operation)} the two numbers")}#{'.' * i}"
+  0.upto(4) do |i|
+    print "#{format(messages('calculating', language), operation_to_message: operation_to_message(operation, language))}#{'.' * i}"
     $stdout.flush
     sleep 0.4
   end
   print "\n"
 
-  result = case operation
-           when 'Addition' then number1.to_i + number2.to_i
-           when 'Subtraction' then number1.to_i - number2.to_i
-           when 'Multiplication' then number1.to_i * number2.to_i
-           when 'Division' then number1.to_f / number2.to_f
+  result = case operation_to_code(operation, language)
+           when 0 then number1.to_f + number2.to_f
+           when 1 then number1.to_f - number2.to_f
+           when 2 then number1.to_f * number2.to_f
+           when 3 then number1.to_f / number2.to_f
            end
 
-  prompt format(MESSAGES['show_result'], result: result)
+  prompt format(messages('show_result', language), result: result)
 
-  answer = prompt.select(add_prompt(MESSAGES['calculate_again?']),
-                         %w(Yes No),
+  answer = prompt.select(add_prompt(messages('calculate_again?', language)),
+                         language_to_yes_no(language),
                          cycle: true)
-  break unless answer == 'Yes'
+  break unless yes_no_to_code(answer, language) == 0
 end
 
-prompt MESSAGES['thank_you']
+prompt messages('thank_you', language)
