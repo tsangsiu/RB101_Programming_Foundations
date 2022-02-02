@@ -72,7 +72,7 @@ loop do # Main Loop
   loop do
     prompt messages('loan_amount', language)
     loan_amount = gets.chomp
-    break if valid_number?(loan_amount) || loan_amount == ''
+    break if valid_number?(loan_amount) || loan_amount.empty?
     prompt messages('not_valid_number', language)
   end
   loan_amount = loan_amount.to_f
@@ -83,7 +83,7 @@ loop do # Main Loop
     prompt messages('apr_example', language)
     annual_percentage_rate = gets.chomp
     break if valid_number?(annual_percentage_rate) ||
-             annual_percentage_rate == ''
+             annual_percentage_rate.empty?
     prompt messages('not_valid_number', language)
   end
   annual_percentage_rate = annual_percentage_rate.to_f
@@ -95,7 +95,7 @@ loop do # Main Loop
       prompt messages('loan_duration_year', language)
       loan_duration_year = gets.chomp
       break if valid_non_negative_integer?(loan_duration_year) ||
-               loan_duration_year == ''
+               loan_duration_year.empty?
       prompt messages('not_non_negative_integer', language)
     end
     loan_duration_year = loan_duration_year.to_i
@@ -105,7 +105,7 @@ loop do # Main Loop
       prompt messages('loan_duration_month', language)
       loan_duration_month = gets.chomp
       break if valid_non_negative_integer?(loan_duration_month) ||
-               loan_duration_month == ''
+               loan_duration_month.empty?
       prompt messages('not_non_negative_integer', language)
     end
     loan_duration_month = loan_duration_month.to_i
