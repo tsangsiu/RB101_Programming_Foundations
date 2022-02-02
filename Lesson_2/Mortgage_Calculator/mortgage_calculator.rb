@@ -79,6 +79,7 @@ loop do # Main Loop
   annual_percentage_rate = ''
   loop do
     prompt messages('annual_percentage_rate', language)
+    prompt messages('apr_example', language)
     annual_percentage_rate = gets.chomp
     break if valid_number?(annual_percentage_rate)
     prompt messages('not_valid_number', language)
