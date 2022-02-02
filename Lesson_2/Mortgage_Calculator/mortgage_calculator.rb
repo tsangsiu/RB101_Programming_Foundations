@@ -35,8 +35,12 @@ def yes_no_to_code(yes_no, language = "English")
   language_to_yes_no(language).index(yes_no)
 end
 
-def valid_number?(num)
-  !!(num =~ /^\+?\d*\.?\d*$/ and num != '.')
+def valid_number?(number)
+  !!(number =~ /^\+?\d*\.?\d*$/ and number != '.')
+end
+
+def valid_non_negative_integer?(number)
+  number =~ /^\+?\d+$/
 end
 
 # Constants
@@ -83,12 +87,28 @@ loop do # Main Loop
 
   loan_duration = ''
   loop do
-    prompt messages('loan_duration', language)
-    loan_duration = gets.chomp
-    break if valid_number?(loan_duration)
-    prompt messages('not_a_valid_number', language)
+    loan_duration_year = ''
+    loop do
+      prompt messages('loan_duration_year', language)
+      loan_duration_year = gets.chomp
+      break if valid_non_negative_integer?(loan_duration_year)
+      prompt messages('not_non_negative_integer', language)
+    end
+    loan_duration_year = loan_duration_year.to_i
+
+    loan_duration_month = ''
+    loop do
+      prompt messages('loan_duration_month', language)
+      loan_duration_month = gets.chomp
+      break if valid_non_negative_integer?(loan_duration_month)
+      prompt messages('not_non_negative_integer', language)
+    end
+    loan_duration_month = loan_duration_month.to_i
+
+    loan_duration = loan_duration_year * MONTHS_PER_YEAR + loan_duration_month
+    break if loan_duration > 0
+    prompt messages('not_valid_loan_duration', language)
   end
-  loan_duration = loan_duration.to_f
 
   0.upto(4) do |i|
     print "\r#{messages('calculating', language)}#{'.' * i}"
@@ -100,10 +120,14 @@ loop do # Main Loop
   monthly_interest_rate = annual_percentage_rate *
                           RATE_TO_PERCENT / MONTHS_PER_YEAR
 
-  monthly_payment = loan_amount * monthly_interest_rate / (
-                    1 - (1 +
-                    monthly_interest_rate)**(-loan_duration * MONTHS_PER_YEAR)
-                  )
+  if monthly_interest_rate == 0
+    monthly_payment = loan_amount / loan_duration
+  else
+    monthly_payment = loan_amount * monthly_interest_rate / (
+                      1 - (1 +
+                      monthly_interest_rate)**(-loan_duration)
+                    )
+  end
 
   system 'clear'
 
