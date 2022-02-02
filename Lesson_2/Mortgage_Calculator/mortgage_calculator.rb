@@ -61,7 +61,7 @@ prompt messages('welcome', language)
 name = ''
 loop do
   name = gets.chomp
-  name.empty? ? (prompt messages('not_a_valid_name', language)) : break
+  name.empty? ? (prompt messages('not_valid_name', language)) : break
 end
 
 prompt format(messages('greeting', language), name: name)
@@ -72,7 +72,7 @@ loop do # Main Loop
     prompt messages('loan_amount', language)
     loan_amount = gets.chomp
     break if valid_number?(loan_amount)
-    prompt messages('not_a_valid_number', language)
+    prompt messages('not_valid_number', language)
   end
   loan_amount = loan_amount.to_f
 
@@ -81,7 +81,7 @@ loop do # Main Loop
     prompt messages('annual_percentage_rate', language)
     annual_percentage_rate = gets.chomp
     break if valid_number?(annual_percentage_rate)
-    prompt messages('not_a_valid_number', language)
+    prompt messages('not_valid_number', language)
   end
   annual_percentage_rate = annual_percentage_rate.to_f
 
