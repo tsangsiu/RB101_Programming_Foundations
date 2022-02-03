@@ -6,7 +6,7 @@ MESSAGES = YAML.load_file('messages.yml')
 
 # Methods
 
-def messages(message, language = 'English')
+def messages(message, language = LANGUAGE)
   MESSAGES[language][message]
 end
 
@@ -18,12 +18,8 @@ def prompt(message)
   puts add_prompt(message)
 end
 
-def languages_to_choose
-  ["English", "繁體中文"]
-end
-
-def language_to_yes_no(language = "English")
-  case language
+def language_to_yes_no
+  case LANGUAGE
   when "English"
     ["Yes", "No"]
   when "繁體中文"
@@ -31,8 +27,8 @@ def language_to_yes_no(language = "English")
   end
 end
 
-def yes_no_to_code(yes_no, language = "English")
-  language_to_yes_no(language).index(yes_no)
+def yes_no_to_code(yes_no)
+  language_to_yes_no.index(yes_no)
 end
 
 def valid_number?(number)
@@ -40,11 +36,84 @@ def valid_number?(number)
 end
 
 def valid_non_negative_integer?(number)
-  number =~ /^\+?\d+$/
+  !!(number =~ /^\+?\d+$/)
+end
+
+def get_name
+  loop do
+    name = gets.chomp
+    break name if !name.empty?
+    prompt messages('not_valid_name', language)
+  end
+end
+
+def get_loan_amount
+  loop do
+    prompt messages('loan_amount')
+    loan_amount = gets.chomp
+    break loan_amount.to_f if valid_number?(loan_amount) || loan_amount.empty?
+    prompt messages('not_valid_number')
+  end
+end
+
+def get_annual_percentage_rate
+  loop do
+    prompt messages('annual_percentage_rate')
+    prompt messages('apr_example')
+    annual_percentage_rate = gets.chomp
+    if valid_number?(annual_percentage_rate) || annual_percentage_rate.empty?
+      break annual_percentage_rate.to_f
+    end
+    prompt messages('not_valid_number')
+  end
+end
+
+def get_loan_duration_year
+  loop do
+    prompt messages('loan_duration_year')
+    loan_duration_year = gets.chomp
+    if valid_non_negative_integer?(loan_duration_year) ||
+       loan_duration_year.empty?
+      break loan_duration_year.to_i
+    end
+    prompt messages('not_non_negative_integer')
+  end
+end
+
+def get_loan_duration_month
+  loop do
+    prompt messages('loan_duration_month')
+    loan_duration_month = gets.chomp
+    if valid_non_negative_integer?(loan_duration_month) ||
+       loan_duration_month.empty?
+      break loan_duration_month.to_i
+    end
+    prompt messages('not_non_negative_integer')
+  end
+end
+
+def get_loan_duration
+  loop do
+    loan_duration_year = get_loan_duration_year
+    loan_duration_month = get_loan_duration_month
+    loan_duration = loan_duration_year * MONTHS_PER_YEAR + loan_duration_month
+    break loan_duration if loan_duration > 0
+    prompt messages('not_valid_loan_duration')
+  end
+end
+
+def calculating
+  0.upto(4) do |i|
+    print "\r#{messages('calculating')}#{'.' * i}"
+    $stdout.flush
+    sleep 0.4
+  end
+  print "\n"
 end
 
 # Constants
 
+LANGUAGES_TO_CHOOSE = ["English", "繁體中文"]
 RATE_TO_PERCENT = 0.01
 MONTHS_PER_YEAR = 12
 
@@ -52,78 +121,24 @@ MONTHS_PER_YEAR = 12
 
 system 'clear'
 
-language = prompt.select(add_prompt(messages('choose_language')),
-                         languages_to_choose,
+LANGUAGE = prompt.select(add_prompt(messages('choose_language', 'English')),
+                         LANGUAGES_TO_CHOOSE,
                          cycle: true)
 
-prompt messages('welcome', language)
+prompt messages('welcome')
 
-name = ''
-loop do
-  name = gets.chomp
-  break if !name.empty?
-  prompt messages('not_valid_name', language)
-end
+name = get_name
 
-prompt format(messages('greeting', language), name: name)
+prompt format(messages('greeting'), name: name)
 
 loop do # Main Loop
-  loan_amount = ''
-  loop do
-    prompt messages('loan_amount', language)
-    loan_amount = gets.chomp
-    break if valid_number?(loan_amount) || loan_amount.empty?
-    prompt messages('not_valid_number', language)
-  end
-  loan_amount = loan_amount.to_f
-
-  annual_percentage_rate = ''
-  loop do
-    prompt messages('annual_percentage_rate', language)
-    prompt messages('apr_example', language)
-    annual_percentage_rate = gets.chomp
-    break if valid_number?(annual_percentage_rate) ||
-             annual_percentage_rate.empty?
-    prompt messages('not_valid_number', language)
-  end
-  annual_percentage_rate = annual_percentage_rate.to_f
-
-  loan_duration = ''
-  loop do
-    loan_duration_year = ''
-    loop do
-      prompt messages('loan_duration_year', language)
-      loan_duration_year = gets.chomp
-      break if valid_non_negative_integer?(loan_duration_year) ||
-               loan_duration_year.empty?
-      prompt messages('not_non_negative_integer', language)
-    end
-    loan_duration_year = loan_duration_year.to_i
-
-    loan_duration_month = ''
-    loop do
-      prompt messages('loan_duration_month', language)
-      loan_duration_month = gets.chomp
-      break if valid_non_negative_integer?(loan_duration_month) ||
-               loan_duration_month.empty?
-      prompt messages('not_non_negative_integer', language)
-    end
-    loan_duration_month = loan_duration_month.to_i
-
-    loan_duration = loan_duration_year * MONTHS_PER_YEAR + loan_duration_month
-    break if loan_duration > 0
-    prompt messages('not_valid_loan_duration', language)
-  end
-
-  0.upto(4) do |i|
-    print "\r#{messages('calculating', language)}#{'.' * i}"
-    $stdout.flush
-    sleep 0.4
-  end
-  print "\n"
-
+  loan_amount = get_loan_amount
+  annual_percentage_rate = get_annual_percentage_rate
+  loan_duration = get_loan_duration
   monthly_interest_rate = annual_percentage_rate *
                           RATE_TO_PERCENT / MONTHS_PER_YEAR
+
+  calculating
 
   if monthly_interest_rate == 0
     monthly_payment = loan_amount / loan_duration
@@ -136,18 +151,17 @@ loop do # Main Loop
 
   system 'clear'
 
-  prompt format(messages('show_monthly_payment', language),
+  prompt format(messages('show_monthly_payment'),
                 monthly_payment: format("$%.2f", monthly_payment))
 
   sleep 1
 
   calculate_again = prompt.select(
-    add_prompt(messages('calculate_again?', language)),
-    language_to_yes_no(language),
+    add_prompt(messages('calculate_again?')),
+    language_to_yes_no,
     cycle: true
   )
-
-  break unless yes_no_to_code(calculate_again, language) == 0
+  break unless yes_no_to_code(calculate_again) == 0
 end
 
-prompt messages('thank_you', language)
+prompt messages('thank_you')
