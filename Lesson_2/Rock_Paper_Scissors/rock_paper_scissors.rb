@@ -15,10 +15,23 @@ def prompt(message)
   puts add_prompt(message)
 end
 
+# def first_player_win?(first_player, second_player)
+#   (first_player == 'Rock' && second_player == 'Scissors') ||
+#     (first_player == 'Paper' && second_player == 'Rock') ||
+#     (first_player == 'Scissors' && second_player == 'Paper')
+# end
+
 def first_player_win?(first_player, second_player)
-  (first_player == 'Rock' && second_player == 'Scissors') ||
+  (first_player == 'Scissors' && second_player == 'Paper') ||
     (first_player == 'Paper' && second_player == 'Rock') ||
-    (first_player == 'Scissors' && second_player == 'Paper')
+    (first_player == 'Rock' && second_player == 'Lizard') ||
+    (first_player == 'Lizard' && second_player == 'Spock') ||
+    (first_player == 'Spock' && second_player == 'Scissors') ||
+    (first_player == 'Scissors' && second_player == 'Lizard') ||
+    (first_player == 'Lizard' && second_player == 'Paper') ||
+    (first_player == 'Paper' && second_player == 'Spock') ||
+    (first_player == 'Spock' && second_player == 'Rock') ||
+    (first_player == 'Rock' && second_player == 'Scissors')
 end
 
 def display_result(player_choice, computer_choice)
@@ -33,7 +46,7 @@ end
 
 # Constants
 
-CHOICES = %w(Rock Paper Scissors)
+CHOICES = %w(Rock Paper Scissors Spock Lizard)
 YES_NO = %w(Yes No)
 
 # Main Program
