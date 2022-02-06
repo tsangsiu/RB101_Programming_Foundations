@@ -4,7 +4,7 @@ prompt = TTY::Prompt.new
 # Methods
 
 def add_prompt(message)
-  "=> #{message}"
+  "#{PROMPT}#{message}"
 end
 
 def prompt(message)
@@ -49,31 +49,53 @@ end
 
 # Constants
 
+PROMPT = "=> "
 YES_NO = %w(Yes No)
 WINS_NEEDED = 3
 CHOICES = %w(Rock Paper Scissors Spock Lizard)
 CHOICES_TO_WIN = {
-  'Scissors' => %w(Paper Lizard),
-  'Paper' => %w(Rock Spock),
-  'Rock' => %w(Lizard Scissors),
-  'Lizard' => %w(Spock Paper),
-  'Spock' => %w(Scissors Rock)
+  "Scissors" => %w(Paper Lizard),
+  "Paper" => %w(Rock Spock),
+  "Rock" => %w(Lizard Scissors),
+  "Lizard" => %w(Spock Paper),
+  "Spock" => %w(Scissors Rock)
 }
+RULES = <<-MSG
+Scissors cuts Paper
+#{' ' * (PROMPT.length)}Paper covers Rock
+#{' ' * (PROMPT.length)}Rock crushes Lizard
+#{' ' * (PROMPT.length)}Lizard poisons Spock
+#{' ' * (PROMPT.length)}Spock smashes Scissors
+#{' ' * (PROMPT.length)}Scissors decapitates Lizard
+#{' ' * (PROMPT.length)}Lizard eats Paper
+#{' ' * (PROMPT.length)}Paper disproves Spock
+#{' ' * (PROMPT.length)}Spock vaporizes Rock
+#{' ' * (PROMPT.length)}Rock crushes Scissors
+
+#{' ' * (PROMPT.length)}The first player reaches three wins wins the game.
+MSG
 
 # Main Program
 
-loop do
-  system 'clear'
+system "clear"
 
+prompt("Welcome to Rock Paper Scissors Lizard Spock!")
+
+read_rules = prompt.select(add_prompt("Would you like to read the rules?"),
+                           YES_NO,
+                           cycle: true)
+read_rules == "Yes" ? (prompt(RULES)) : (system "clear")
+
+loop do
   scores = { player: 0, computer: 0 }
 
   loop do
-    player_choice = prompt.select(add_prompt('Choose one:'),
+    player_choice = prompt.select(add_prompt("Choose one:"),
                                   CHOICES,
                                   cycle: true)
     computer_choice = CHOICES.sample
 
-    system 'clear'
+    system "clear"
 
     prompt("You chose #{player_choice.downcase}, " \
            "and computer chose #{computer_choice.downcase}.")
@@ -89,10 +111,12 @@ loop do
     end
   end
 
-  play_again = prompt.select(add_prompt('Do you want to play again?'),
+  play_again = prompt.select(add_prompt("Do you want to play again?"),
                              YES_NO,
                              cycle: true)
-  break if play_again == 'No'
+  break if play_again == "No"
+
+  system "clear"
 end
 
-prompt('Thank you for playing. Good bye!')
+prompt("Thank you for playing. Good bye!")
