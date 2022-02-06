@@ -1,7 +1,3 @@
-# the user makes a choice
-# the computer makes a choice
-# the winner is displayed
-
 require "tty-prompt"
 prompt = TTY::Prompt.new
 
@@ -15,23 +11,8 @@ def prompt(message)
   puts add_prompt(message)
 end
 
-# def first_player_win?(first_player, second_player)
-#   (first_player == 'Rock' && second_player == 'Scissors') ||
-#     (first_player == 'Paper' && second_player == 'Rock') ||
-#     (first_player == 'Scissors' && second_player == 'Paper')
-# end
-
 def first_player_win?(first_player, second_player)
-  (first_player == 'Scissors' && second_player == 'Paper') ||
-    (first_player == 'Paper' && second_player == 'Rock') ||
-    (first_player == 'Rock' && second_player == 'Lizard') ||
-    (first_player == 'Lizard' && second_player == 'Spock') ||
-    (first_player == 'Spock' && second_player == 'Scissors') ||
-    (first_player == 'Scissors' && second_player == 'Lizard') ||
-    (first_player == 'Lizard' && second_player == 'Paper') ||
-    (first_player == 'Paper' && second_player == 'Spock') ||
-    (first_player == 'Spock' && second_player == 'Rock') ||
-    (first_player == 'Rock' && second_player == 'Scissors')
+  CHOICES_TO_WIN[first_player].include?(second_player)
 end
 
 def display_result(player_choice, computer_choice)
@@ -46,8 +27,15 @@ end
 
 # Constants
 
-CHOICES = %w(Rock Paper Scissors Spock Lizard)
 YES_NO = %w(Yes No)
+CHOICES = %w(Rock Paper Scissors Spock Lizard)
+CHOICES_TO_WIN = {
+  'Scissors' => %w(Paper Lizard),
+  'Paper' => %w(Rock Spock),
+  'Rock' => %w(Lizard Scissors),
+  'Lizard' => %w(Spock Paper),
+  'Spock' => %w(Scissors Rock)
+}
 
 # Main Program
 
