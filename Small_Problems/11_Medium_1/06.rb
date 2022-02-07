@@ -26,3 +26,15 @@ end
 # minilang('4 PUSH PUSH 7 MOD MULT PRINT ')
 # minilang('-3 PUSH 5 SUB PRINT')
 # minilang('6 PUSH')
+
+# Further Exploration
+=begin
+Unlike the usual operation, the last operation are handled first,
+because: register = register [operation] stack.pop
+=end
+minilang(
+  '3 PUSH 5 MOD PUSH ' +  # register: 2, stack: [2]
+  '7 PUSH ' +             # register: 7, stack: [2, 7]
+  '5 PUSH 4 MULT PUSH ' + # register: 20, stack: [2, 7, 20]
+  '3 ADD SUB DIV PRINT'
+)
