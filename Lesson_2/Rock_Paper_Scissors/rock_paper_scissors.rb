@@ -1,5 +1,4 @@
 require "tty-prompt"
-prompt = TTY::Prompt.new
 
 # Methods
 
@@ -9,6 +8,27 @@ end
 
 def prompt(message)
   puts add_prompt(message)
+end
+
+def read_rules
+  read_rules = TTY::Prompt.new.select(
+    add_prompt("Would you like to read the rules?"),
+    YES_NO,
+    cycle: true
+  )
+  read_rules == "Yes" ? (prompt(RULES)) : (system "clear")
+end
+
+def get_player_choice
+  TTY::Prompt.new.select(
+    add_prompt("Choose one:"),
+    CHOICES,
+    cycle: true
+  )
+end
+
+def get_computer_choice
+  CHOICES.sample
 end
 
 def win?(player_choice, computer_choice)
@@ -47,6 +67,15 @@ def display_grand_result(scores)
   end
 end
 
+def play_again?
+  play_again = TTY::Prompt.new.select(
+    add_prompt("Do you want to play again?"),
+    YES_NO,
+    cycle: true
+  )
+  play_again == 'Yes'
+end
+
 # Constants
 
 PROMPT = "=> "
@@ -81,19 +110,14 @@ system "clear"
 
 prompt("Welcome to Rock Paper Scissors Lizard Spock!")
 
-read_rules = prompt.select(add_prompt("Would you like to read the rules?"),
-                           YES_NO,
-                           cycle: true)
-read_rules == "Yes" ? (prompt(RULES)) : (system "clear")
+read_rules
 
 loop do
   scores = { player: 0, computer: 0 }
 
   loop do
-    player_choice = prompt.select(add_prompt("Choose one:"),
-                                  CHOICES,
-                                  cycle: true)
-    computer_choice = CHOICES.sample
+    player_choice = get_player_choice
+    computer_choice = get_computer_choice
 
     system "clear"
 
@@ -111,12 +135,11 @@ loop do
     end
   end
 
-  play_again = prompt.select(add_prompt("Do you want to play again?"),
-                             YES_NO,
-                             cycle: true)
-  break if play_again == "No"
+  play_again = play_again?
+  break unless play_again
 
   system "clear"
 end
 
+system "clear"
 prompt("Thank you for playing. Good bye!")
