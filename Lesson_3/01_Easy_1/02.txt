@@ -1,0 +1,22 @@
+# 1
+!= is a logical operator. It returns true if the two operands are different, and
+false if the two operands are the same.
+
+# 2
+The ! before a variable turns its truthiness from true to false, or from false
+to true.
+
+# 3
+The ! after a method name, as a usual practice, usually indicates that that 
+method is a destructive one, that is, the method mutates the caller.
+
+# 4
+The ? before something is part of the ternary operator for if...else.
+
+# 5
+The ? after method name, as a usual practice, usually indicates that that method
+returns a boolean value.
+
+# 6
+Putting !! before a variable name returns true if the object that the variable 
+points to is truthy, and false if falsy.
