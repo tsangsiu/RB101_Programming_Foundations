@@ -1,0 +1,6 @@
+The family's data did get ransacked.
+
+demo_hash.values returns an array of hashes. The Array#each method is then 
+invoked on the array to iterate through each hash. In the do block, it perfoms
+element re-assignmnet for each hash. As element re-assignment is a destructive
+operation. The family data will get ransacked.

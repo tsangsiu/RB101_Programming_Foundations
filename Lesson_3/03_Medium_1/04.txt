@@ -1,0 +1,2 @@
+The difference between the two is that << is a destructive method. It modifies
+the caller in place. And + is a non-destructive method. It creates a new object.
