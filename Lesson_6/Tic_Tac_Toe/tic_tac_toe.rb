@@ -20,6 +20,8 @@ Sequence:
 
 =end
 
+require 'pry'
+
 # Constants
 
 INITIAL_MARKER = ' '
@@ -33,6 +35,7 @@ def prompt(msg)
 end
 
 def display_board(board)
+  system 'clear'
   puts ""
   puts "     |     |"
   puts "  #{board[1]}  |  #{board[2]}  |  #{board[3]}"
@@ -69,11 +72,30 @@ def player_places_piece!(board)
   board[square] = PLAYER_MARKER
 end
 
+def computer_places_piece!(board)
+  square = empty_squares(board).sample
+  board[square] = COMPUTER_MARKER
+end
+
+def board_full?(board)
+  empty_squares(board).empty?
+end
+
+def someone_won?(board)
+  false
+end
+
 # Main Program
 
 board = initialize_board
 display_board(board)
 
-player_places_piece!(board)
-puts board.inspect
+loop do
+  player_places_piece!(board)
+  computer_places_piece!(board)
+  puts board.inspect
+  display_board(board)
+  break if someone_won?(board) || board_full?(board)
+end
+
 display_board(board)
