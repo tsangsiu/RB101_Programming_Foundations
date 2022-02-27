@@ -67,10 +67,18 @@ def empty_squares(board)
   board.keys.select { |num| board[num] == INITIAL_MARKER }
 end
 
+def joinor(array, delimiter = ', ', connector = 'or')
+  if array.size <= 2
+    array.join(" #{connector} ")
+  elsif array.size > 2
+    array[0...-1].join("#{delimiter}") + "#{delimiter}#{connector} #{array[-1]}"
+  end
+end
+
 def player_places_piece!(board)
   square = ''
   loop do
-    prompt "Choose a square (#{empty_squares(board).join(', ')}):"
+    prompt "Choose a square (#{joinor(empty_squares(board))}):"
     square = gets.chomp.to_i
     break if empty_squares(board).include?(square)
     prompt "Sorry, that's not a valid choice."
@@ -99,7 +107,6 @@ def detect_winner(board)
       return 'Computer'
     end
   end
-
   nil
 end
 
