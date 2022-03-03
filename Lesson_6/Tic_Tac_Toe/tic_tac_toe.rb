@@ -50,7 +50,7 @@ def joinor(array, delimiter = ', ', connector = 'or')
   if array.size <= 2
     array.join(" #{connector} ")
   elsif array.size > 2
-    array[0...-1].join("#{delimiter}") + "#{delimiter}#{connector} #{array[-1]}"
+    array[0...-1].join(delimiter) + "#{delimiter}#{connector} #{array[-1]}"
   end
 end
 
@@ -67,6 +67,17 @@ end
 
 def computer_places_piece!(board)
   square = empty_squares(board).sample
+
+  WINNING_LINES.each do |winning_line|
+    player_marker_count = winning_line.count { |sq| board[sq] == PLAYER_MARKER }
+    comp_marker_count = winning_line.count { |sq| board[sq] == COMPUTER_MARKER }
+
+    if [player_marker_count, comp_marker_count] == [2, 0]
+      square = winning_line.select { |sq| board[sq] == INITIAL_MARKER }[0]
+      break
+    end
+  end
+
   board[square] = COMPUTER_MARKER
 end
 
