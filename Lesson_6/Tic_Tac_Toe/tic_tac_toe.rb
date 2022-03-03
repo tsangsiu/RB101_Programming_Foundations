@@ -65,18 +65,30 @@ def player_places_piece!(board)
   board[square] = PLAYER_MARKER
 end
 
+def find_at_risk_square(board, winning_line)
+  player_marker_count = winning_line.count do |sq|
+    board[sq] == PLAYER_MARKER
+  end
+  computer_marker_count = winning_line.count do |sq|
+    board[sq] == COMPUTER_MARKER
+  end
+
+  if player_marker_count == 2 && computer_marker_count == 0
+    square = winning_line.select do |sq|
+      board[sq] == INITIAL_MARKER
+    end
+    square[0]
+  end
+end
+
 def computer_places_piece!(board)
-  square = empty_squares(board).sample
+  square = nil
 
   WINNING_LINES.each do |winning_line|
-    player_marker_count = winning_line.count { |sq| board[sq] == PLAYER_MARKER }
-    comp_marker_count = winning_line.count { |sq| board[sq] == COMPUTER_MARKER }
-
-    if [player_marker_count, comp_marker_count] == [2, 0]
-      square = winning_line.select { |sq| board[sq] == INITIAL_MARKER }[0]
-      break
-    end
+    square = find_at_risk_square(board, winning_line)
+    break if !square.nil?
   end
+  square = empty_squares(board).sample if square.nil?
 
   board[square] = COMPUTER_MARKER
 end
