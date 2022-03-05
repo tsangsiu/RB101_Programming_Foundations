@@ -65,30 +65,34 @@ def player_places_piece!(board)
   board[square] = PLAYER_MARKER
 end
 
-def find_at_risk_square(board, winning_line)
-  player_marker_count = winning_line.count do |sq|
-    board[sq] == PLAYER_MARKER
-  end
-  computer_marker_count = winning_line.count do |sq|
-    board[sq] == COMPUTER_MARKER
-  end
-
-  if player_marker_count == 2 && computer_marker_count == 0
-    square = winning_line.select do |sq|
-      board[sq] == INITIAL_MARKER
-    end
-    square[0]
+def find_at_risk_square(board, winning_line, marker)
+  if board.values_at(*winning_line).count(marker) == 2
+    board.select do |sq, mark|
+      winning_line.include?(sq) && mark == INITIAL_MARKER
+    end.keys.first
   end
 end
 
 def computer_places_piece!(board)
   square = nil
 
+  # offense
   WINNING_LINES.each do |winning_line|
-    square = find_at_risk_square(board, winning_line)
-    break if !square.nil?
+    square = find_at_risk_square(board, winning_line, COMPUTER_MARKER)
+    break if square
   end
-  square = empty_squares(board).sample if square.nil?
+
+  # defense
+  if square.nil?
+    WINNING_LINES.each do |winning_line|
+      square = find_at_risk_square(board, winning_line, PLAYER_MARKER)
+      break if square
+    end
+  end
+
+  if square.nil?
+    square = empty_squares(board).sample
+  end
 
   board[square] = COMPUTER_MARKER
 end
