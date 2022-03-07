@@ -5,6 +5,8 @@ require 'pry'
 WINNING_LINES = [[1, 2, 3], [4, 5, 6], [7, 8, 9]] + # rows
                 [[1, 4, 7], [2, 5, 8], [3, 6, 9]] + # columns
                 [[1, 5, 9], [3, 5, 7]]              # diagonals
+PLAYER = 'Player'
+COMPUTER = 'Computer'
 INITIAL_MARKER = ' '
 PLAYER_MARKER = 'X'
 COMPUTER_MARKER = 'O'
@@ -91,10 +93,26 @@ def computer_places_piece!(board)
   end
 
   if square.nil?
-    square = empty_squares(board).sample
+    if empty_squares(board).include?(5)
+      square = 5
+    else
+      square = empty_squares(board).sample
+    end
   end
 
   board[square] = COMPUTER_MARKER
+end
+
+def place_piece!(board, current_player)
+  if current_player == PLAYER
+    player_places_piece!(board)
+  elsif current_player == COMPUTER
+    computer_places_piece!(board)
+  end
+end
+
+def alternate_player(current_player)
+  current_player == PLAYER ? COMPUTER : PLAYER
 end
 
 def board_full?(board)
@@ -108,9 +126,9 @@ end
 def detect_winner(board)
   WINNING_LINES.each do |line|
     if board.values_at(*line).all? { |marker| marker == PLAYER_MARKER }
-      return 'Player'
+      return PLAYER
     elsif board.values_at(*line).all? { |marker| marker == COMPUTER_MARKER }
-      return 'Computer'
+      return COMPUTER
     end
   end
   nil
@@ -119,8 +137,8 @@ end
 def add_score(board, scores)
   winner = detect_winner(board)
   case winner
-  when 'Player'   then scores[:player] += 1
-  when 'Computer' then scores[:computer] += 1
+  when PLAYER   then scores[:player] += 1
+  when COMPUTER then scores[:computer] += 1
   end
 end
 
@@ -132,11 +150,12 @@ loop do
   loop do
     board = initialize_board
 
+    current_player = PLAYER
+
     loop do
       display_board(board)
-      player_places_piece!(board)
-      break if someone_won?(board) || board_full?(board)
-      computer_places_piece!(board)
+      place_piece!(board, current_player)
+      current_player = alternate_player(current_player)
       break if someone_won?(board) || board_full?(board)
     end
 
