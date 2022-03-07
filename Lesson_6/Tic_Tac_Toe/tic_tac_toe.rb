@@ -75,39 +75,34 @@ def find_at_risk_square(board, winning_line, marker)
   end
 end
 
-def computer_places_piece!(board)
-  square = nil
-
-  # offense
+def check_each_winning_line(board, marker)
   WINNING_LINES.each do |winning_line|
-    square = find_at_risk_square(board, winning_line, COMPUTER_MARKER)
-    break if square
+    square = find_at_risk_square(board, winning_line, marker)
+    return square if square
   end
+  nil
+end
+
+def computer_places_piece!(board)
+  # offense
+  square = check_each_winning_line(board, COMPUTER_MARKER)
 
   # defense
   if square.nil?
-    WINNING_LINES.each do |winning_line|
-      square = find_at_risk_square(board, winning_line, PLAYER_MARKER)
-      break if square
-    end
+    square = check_each_winning_line(board, PLAYER_MARKER)
   end
 
   if square.nil?
-    if empty_squares(board).include?(5)
-      square = 5
-    else
-      square = empty_squares(board).sample
-    end
+    square = empty_squares(board).include?(5) ? 5 : empty_squares(board).sample
   end
 
   board[square] = COMPUTER_MARKER
 end
 
 def place_piece!(board, current_player)
-  if current_player == PLAYER
-    player_places_piece!(board)
-  elsif current_player == COMPUTER
-    computer_places_piece!(board)
+  case current_player
+  when PLAYER   then player_places_piece!(board)
+  when COMPUTER then computer_places_piece!(board)
   end
 end
 
@@ -147,7 +142,6 @@ end
 loop do
   scores = { player: 0, computer: 0 }
 
-
   current_player = ''
   loop do
     prompt "Which player would you like to go first?"
@@ -156,19 +150,16 @@ loop do
            "or random (or 'r') to let computer decide."
     current_player = gets.chomp
 
-    current_player = if ['user', 'u'].include?(current_player)
-      PLAYER
-    elsif ['computer', 'c'].include?(current_player)
-      COMPUTER
-    elsif ['random', 'r'].include?(current_player)
-      [PLAYER, COMPUTER].sample
-    else
-      ''
-    end
+    current_player = case current_player.downcase
+                     when 'user', 'u' then PLAYER
+                     when 'computer', 'c' then COMPUTER
+                     when 'random', 'r' then [PLAYER, COMPUTER].sample
+                     else ''
+                     end
 
     break if current_player != ''
 
-    prompt "Sorry, that's not a valid choice."    
+    prompt "Sorry, that's not a valid choice."
   end
 
   loop do
