@@ -147,10 +147,32 @@ end
 loop do
   scores = { player: 0, computer: 0 }
 
+
+  current_player = ''
+  loop do
+    prompt "Which player would you like to go first?"
+    prompt "Enter 'user' (or 'u') to go first, " \
+           "'computer' (or 'c') to let computer go first, " \
+           "or random (or 'r') to let computer decide."
+    current_player = gets.chomp
+
+    current_player = if ['user', 'u'].include?(current_player)
+      PLAYER
+    elsif ['computer', 'c'].include?(current_player)
+      COMPUTER
+    elsif ['random', 'r'].include?(current_player)
+      [PLAYER, COMPUTER].sample
+    else
+      ''
+    end
+
+    break if current_player != ''
+
+    prompt "Sorry, that's not a valid choice."    
+  end
+
   loop do
     board = initialize_board
-
-    current_player = PLAYER
 
     loop do
       display_board(board)
@@ -174,7 +196,7 @@ loop do
     break if scores.values.include?(WINS_NEEDED)
   end
 
-  prompt "Play again? (y or n)"
+  prompt "Play again? [Y/N]"
   answer = gets.chomp
   break unless answer.downcase.start_with?('y')
 end
