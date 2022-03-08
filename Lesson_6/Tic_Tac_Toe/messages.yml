@@ -1,0 +1,19 @@
+welcome: "Welcome to Tic Tac Toe!"
+display_rules: "Press [enter] to read the rules, or 'q' to not to."
+rules: "Rules\n
+Each player takes a turn and marks a square on a board.\n
+First player to reach 3 squares in a row, including diagonals, wins.\n
+If all squares are marked and no player has 3 squares in a row, it's a tie.\n
+The first player to win %{wins_needed} round(s) is the grand winner."
+get_current_player: "Which player would you like to go first?\n
+Press [enter] to go first.\n
+Enter 'computer' or 'c' to let computer go first.\n
+Enter 'random' or 'r' to let computer decide."
+choose_square: "Choose a square: %{empty_squares}"
+not_valid_choice: "Sorry, that's not a valid choice."
+display_winner: "%{winner} won!"
+display_scores: "Your Score: %{player_score}; Computer Score: %{computer_score}"
+tie: "It's a tie!"
+start_new_round: "Press [enter] to start a new round."
+play_again: "Press [enter] to play again, or 'q' to quit."
+goodbye: "Thanks for playing Tic Tac Toe! Good bye!"

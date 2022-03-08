@@ -1,4 +1,5 @@
-require 'pry'
+require 'yaml'
+MESSAGES = YAML.load_file('messages.yml')
 
 # Constants
 
@@ -10,7 +11,8 @@ COMPUTER = 'Computer'
 INITIAL_MARKER = ' '
 PLAYER_MARKER = 'X'
 COMPUTER_MARKER = 'O'
-WINS_NEEDED = 5
+WINS_NEEDED = 1
+PAUSE_TIME = 0.8
 
 # Methods
 
@@ -18,10 +20,57 @@ def prompt(msg)
   puts "=> #{msg}"
 end
 
+def display_welcome_msg
+  prompt MESSAGES['welcome']
+  sleep PAUSE_TIME
+end
+
+def display_rules
+  loop do
+    prompt MESSAGES['display_rules']
+    display_rules = gets.chomp
+    if display_rules == ''
+      prompt format(MESSAGES['rules'], wins_needed: WINS_NEEDED)
+      sleep PAUSE_TIME
+      break
+    elsif display_rules.downcase == 'q'
+      break
+    end
+    prompt MESSAGES['not_valid_choice']
+    sleep PAUSE_TIME
+  end
+end
+
+def reset_scores
+  { player: 0, computer: 0 }
+end
+
+def ask_current_player
+  current_player = ''
+  loop do
+    prompt MESSAGES['get_current_player']
+    current_player = gets.chomp
+    current_player = case current_player.downcase
+                     when ''              then PLAYER
+                     when 'computer', 'c' then COMPUTER
+                     when 'random', 'r'   then [PLAYER, COMPUTER].sample
+                     end
+    return current_player if current_player
+    prompt MESSAGES['not_valid_choice']
+    sleep PAUSE_TIME
+  end
+end
+
+def initialize_board
+  new_board = {}
+  (1..9).each { |num| new_board[num] = INITIAL_MARKER }
+  new_board
+end
+
 # rubocop: disable Metrics/AbcSize
 def display_board(board)
-  # system 'clear'
-  puts "You're #{PLAYER_MARKER}. Computer is #{COMPUTER_MARKER}."
+  system 'clear'
+  puts "You're '#{PLAYER_MARKER}'. Computer is '#{COMPUTER_MARKER}'."
   puts ""
   puts "     |     |"
   puts "  #{board[1]}  |  #{board[2]}  |  #{board[3]}"
@@ -38,31 +87,33 @@ def display_board(board)
 end
 # rubocop: enable Metrics/AbcSize
 
-def initialize_board
-  new_board = {}
-  (1..9).each { |num| new_board[num] = INITIAL_MARKER }
-  new_board
+def display_winner(board)
+  prompt format(
+    MESSAGES['display_winner'],
+    winner: detect_winner(board) == PLAYER ? 'You' : detect_winner(board)
+  )
+end
+
+def display_scores(scores)
+  prompt format(
+    MESSAGES['display_scores'],
+    player_score: scores[:player], computer_score: scores[:computer]
+  )
 end
 
 def empty_squares(board)
   board.keys.select { |num| board[num] == INITIAL_MARKER }
 end
 
-def joinor(array, delimiter = ', ', connector = 'or')
-  if array.size <= 2
-    array.join(" #{connector} ")
-  elsif array.size > 2
-    array[0...-1].join(delimiter) + "#{delimiter}#{connector} #{array[-1]}"
-  end
-end
-
 def player_places_piece!(board)
   square = ''
   loop do
-    prompt "Choose a square (#{joinor(empty_squares(board))}):"
+    prompt format(
+      MESSAGES['choose_square'], empty_squares: joinor(empty_squares(board))
+    )
     square = gets.chomp.to_i
     break if empty_squares(board).include?(square)
-    prompt "Sorry, that's not a valid choice."
+    prompt MESSAGES["not_valid_choice"]
   end
   board[square] = PLAYER_MARKER
 end
@@ -110,6 +161,14 @@ def alternate_player(current_player)
   current_player == PLAYER ? COMPUTER : PLAYER
 end
 
+def joinor(array, delimiter = ', ', connector = 'or')
+  if array.size <= 2
+    array.join(" #{connector} ")
+  elsif array.size > 2
+    array[0...-1].join(delimiter) + "#{delimiter}#{connector} #{array[-1]}"
+  end
+end
+
 def board_full?(board)
   empty_squares(board).empty?
 end
@@ -137,30 +196,25 @@ def add_score(board, scores)
   end
 end
 
+def start_new_round
+  prompt MESSAGES['start_new_round']
+  gets.chomp
+end
+
+def play_again?
+  prompt MESSAGES['play_again']
+  play_again = gets.chomp
+  play_again.downcase != 'q'
+end
+
 # Main Program
 
+display_welcome_msg
+display_rules
+
 loop do
-  scores = { player: 0, computer: 0 }
-
-  current_player = ''
-  loop do
-    prompt "Which player would you like to go first?"
-    prompt "Enter 'user' (or 'u') to go first, " \
-           "'computer' (or 'c') to let computer go first, " \
-           "or random (or 'r') to let computer decide."
-    current_player = gets.chomp
-
-    current_player = case current_player.downcase
-                     when 'user', 'u' then PLAYER
-                     when 'computer', 'c' then COMPUTER
-                     when 'random', 'r' then [PLAYER, COMPUTER].sample
-                     else ''
-                     end
-
-    break if current_player != ''
-
-    prompt "Sorry, that's not a valid choice."
-  end
+  scores = reset_scores
+  current_player = ask_current_player
 
   loop do
     board = initialize_board
@@ -173,23 +227,18 @@ loop do
     end
 
     display_board(board)
-
     if someone_won?(board)
-      prompt "#{detect_winner(board)} won!"
+      display_winner(board)
       add_score(board, scores)
     else
-      prompt "It's a tie!"
+      prompt MESSAGES['tie']
     end
+    display_scores(scores)
 
-    prompt "Your Score: #{scores[:player]}; " \
-           "Computer Score: #{scores[:computer]}"
-
-    break if scores.values.include?(WINS_NEEDED)
+    scores.values.include?(WINS_NEEDED) ? break : start_new_round
   end
 
-  prompt "Play again? [Y/N]"
-  answer = gets.chomp
-  break unless answer.downcase.start_with?('y')
+  break if !play_again?
 end
 
-prompt "Thanks for playing Tic Tac Toe! Good bye!"
+prompt MESSAGES['goodbye']
