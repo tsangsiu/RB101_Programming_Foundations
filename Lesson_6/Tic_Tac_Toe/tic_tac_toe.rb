@@ -116,15 +116,15 @@ def display_status(round, scores)
   puts '-' * BOARD_WIDTH
 end
 
-# rubocop: disable Metrics/AbcSize
+# rubocop: disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
 def display_board(board)
   puts ""
   puts "     |     |          " \
        "     |     |          "
   puts "  #{board[1]}  |  #{board[2]}  |  #{board[3]}       " \
-       "  #{empty_squares(board).include?(1) ? "1" : " " }  |" \
-       "  #{empty_squares(board).include?(2) ? "2" : " " }  |" \
-       "  #{empty_squares(board).include?(3) ? "3" : " " }"
+       "  #{empty_squares(board).include?(1) ? 1 : ' '}  |" \
+       "  #{empty_squares(board).include?(2) ? 2 : ' '}  |" \
+       "  #{empty_squares(board).include?(3) ? 3 : ' '}"
   puts "     |     |          " \
        "     |     |          "
   puts "-----+-----+-----     " \
@@ -132,9 +132,9 @@ def display_board(board)
   puts "     |     |          " \
        "     |     |          "
   puts "  #{board[4]}  |  #{board[5]}  |  #{board[6]}       " \
-       "  #{empty_squares(board).include?(4) ? "4" : " " }  |" \
-       "  #{empty_squares(board).include?(5) ? "5" : " " }  |" \
-       "  #{empty_squares(board).include?(6) ? "6" : " " }"
+       "  #{empty_squares(board).include?(4) ? 4 : ' '}  |" \
+       "  #{empty_squares(board).include?(5) ? 5 : ' '}  |" \
+       "  #{empty_squares(board).include?(6) ? 6 : ' '}"
   puts "     |     |          " \
        "     |     |          "
   puts "-----+-----+-----     " \
@@ -142,14 +142,14 @@ def display_board(board)
   puts "     |     |          " \
        "     |     |          "
   puts "  #{board[7]}  |  #{board[8]}  |  #{board[9]}       " \
-       "  #{empty_squares(board).include?(7) ? "7" : " " }  |" \
-       "  #{empty_squares(board).include?(8) ? "8" : " " }  |" \
-       "  #{empty_squares(board).include?(9) ? "9" : " " }"
+       "  #{empty_squares(board).include?(7) ? 7 : ' '}  |" \
+       "  #{empty_squares(board).include?(8) ? 8 : ' '}  |" \
+       "  #{empty_squares(board).include?(9) ? 9 : ' '}"
   puts "     |     |          " \
        "     |     |          "
   puts ""
 end
-# rubocop: enable Metrics/AbcSize
+# rubocop: enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
 
 def joinor(array, delimiter = ', ', connector = 'or')
   if array.size <= 2
