@@ -25,6 +25,14 @@ def add_ident(msg, ident = IDENT)
   "#{' ' * ident}#{msg}"
 end
 
+def display_welcome_msg
+  puts '-' * BOARD_WIDTH
+  puts ""
+  puts add_ident(MESSAGES['welcome'])
+  puts ""
+  puts '-' * BOARD_WIDTH
+end
+
 def press_enter_to_continue
   prompt MESSAGES['press_enter_to_continue']
   gets.chomp
@@ -111,17 +119,34 @@ end
 # rubocop: disable Metrics/AbcSize
 def display_board(board)
   puts ""
-  puts "     |     |"
-  puts "  #{board[1]}  |  #{board[2]}  |  #{board[3]}"
-  puts "     |     |"
-  puts "-----+-----+-----"
-  puts "     |     |"
-  puts "  #{board[4]}  |  #{board[5]}  |  #{board[6]}"
-  puts "     |     |"
-  puts "-----+-----+-----"
-  puts "     |     |"
-  puts "  #{board[7]}  |  #{board[8]}  |  #{board[9]}"
-  puts "     |     |"
+  puts "     |     |          " \
+       "     |     |          "
+  puts "  #{board[1]}  |  #{board[2]}  |  #{board[3]}       " \
+       "  #{empty_squares(board).include?(1) ? "1" : " " }  |" \
+       "  #{empty_squares(board).include?(2) ? "2" : " " }  |" \
+       "  #{empty_squares(board).include?(3) ? "3" : " " }"
+  puts "     |     |          " \
+       "     |     |          "
+  puts "-----+-----+-----     " \
+       "-----+-----+-----"
+  puts "     |     |          " \
+       "     |     |          "
+  puts "  #{board[4]}  |  #{board[5]}  |  #{board[6]}       " \
+       "  #{empty_squares(board).include?(4) ? "4" : " " }  |" \
+       "  #{empty_squares(board).include?(5) ? "5" : " " }  |" \
+       "  #{empty_squares(board).include?(6) ? "6" : " " }"
+  puts "     |     |          " \
+       "     |     |          "
+  puts "-----+-----+-----     " \
+       "-----+-----+-----"
+  puts "     |     |          " \
+       "     |     |          "
+  puts "  #{board[7]}  |  #{board[8]}  |  #{board[9]}       " \
+       "  #{empty_squares(board).include?(7) ? "7" : " " }  |" \
+       "  #{empty_squares(board).include?(8) ? "8" : " " }  |" \
+       "  #{empty_squares(board).include?(9) ? "9" : " " }"
+  puts "     |     |          " \
+       "     |     |          "
   puts ""
 end
 # rubocop: enable Metrics/AbcSize
@@ -281,7 +306,7 @@ end
 # Main Program
 
 system 'clear'
-prompt MESSAGES['welcome']
+display_welcome_msg
 display_rules
 
 # loop for each game
