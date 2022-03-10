@@ -1,5 +1,5 @@
 welcome: "Welcome to Tic Tac Toe!"
-display_rules: "Press [enter] to read the rules, or 'q' to not to."
+display_rules: "Enter 'help' or 'h' to read the rules, or press [enter] to not to."
 rules: "Rules\n
 Each player takes turn to mark a square on a board.\n
 First player to reach 3 squares in a row, including diagonals, wins.\n

@@ -12,8 +12,8 @@ INITIAL_MARKER = ' '
 PLAYER_MARKER = 'X'
 COMPUTER_MARKER = 'O'
 WINS_NEEDED = 2
-BOARD_WIDTH = 40
-IDENT = 2
+BOARD_WIDTH = 50
+IDENT = 4
 
 # Methods
 
@@ -31,6 +31,7 @@ def display_welcome_msg
   puts add_ident(MESSAGES['welcome'])
   puts ""
   puts '-' * BOARD_WIDTH
+  puts ""
 end
 
 def press_enter_to_continue
@@ -42,7 +43,7 @@ def display_rules
   loop do
     prompt MESSAGES['display_rules']
     display_rules = gets.chomp
-    if display_rules == ''
+    if ['help', 'h'].include?(display_rules.downcase)
       system 'clear'
       prompt format(
         MESSAGES['rules'],
@@ -50,7 +51,7 @@ def display_rules
       )
       press_enter_to_continue
     end
-    break if ['', 'q'].include?(display_rules.downcase)
+    break if ['help', 'h', ''].include?(display_rules.downcase)
     prompt MESSAGES['not_valid_choice']
   end
 end
@@ -303,6 +304,15 @@ def play_again?
   end
 end
 
+def display_goodbye_msg
+  puts '-' * BOARD_WIDTH
+  puts ""
+  puts add_ident(MESSAGES['goodbye'])
+  puts ""
+  puts '-' * BOARD_WIDTH
+  puts ""
+end
+
 # Main Program
 
 system 'clear'
@@ -354,4 +364,4 @@ loop do
 end
 
 system 'clear'
-prompt MESSAGES['goodbye']
+display_goodbye_msg
