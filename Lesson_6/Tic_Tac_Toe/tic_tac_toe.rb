@@ -3,16 +3,17 @@ MESSAGES = YAML.load_file('messages.yml')
 
 # Constants
 
-WINNING_LINES = [[1, 2, 3], [4, 5, 6], [7, 8, 9]] + # rows
-                [[1, 4, 7], [2, 5, 8], [3, 6, 9]] + # columns
-                [[1, 5, 9], [3, 5, 7]]              # diagonals
-PLAYER = 'Player'
+WINNING_LINES = [[1, 2, 3], [4, 5, 6], [7, 8, 9]] +
+                [[1, 4, 7], [2, 5, 8], [3, 6, 9]] +
+                [[1, 5, 9], [3, 5, 7]]
+PLAYER = 'You'
 COMPUTER = 'Computer'
 INITIAL_MARKER = ' '
 PLAYER_MARKER = 'X'
 COMPUTER_MARKER = 'O'
-WINS_NEEDED = 1
-PAUSE_TIME = 0.8
+WINS_NEEDED = 2
+BOARD_WIDTH = 40
+IDENT = 2
 
 # Methods
 
@@ -20,9 +21,13 @@ def prompt(msg)
   puts "=> #{msg}"
 end
 
-def display_welcome_msg
-  prompt MESSAGES['welcome']
-  sleep PAUSE_TIME
+def add_ident(msg, ident = IDENT)
+  "#{' ' * ident}#{msg}"
+end
+
+def press_enter_to_continue
+  prompt MESSAGES['press_enter_to_continue']
+  gets.chomp
 end
 
 def display_rules
@@ -30,19 +35,16 @@ def display_rules
     prompt MESSAGES['display_rules']
     display_rules = gets.chomp
     if display_rules == ''
-      prompt format(MESSAGES['rules'], wins_needed: WINS_NEEDED)
-      sleep PAUSE_TIME
-      break
-    elsif display_rules.downcase == 'q'
-      break
+      system 'clear'
+      prompt format(
+        MESSAGES['rules'],
+        wins_needed: WINS_NEEDED, round: WINS_NEEDED > 1 ? 'rounds' : 'round'
+      )
+      press_enter_to_continue
     end
+    break if ['', 'q'].include?(display_rules.downcase)
     prompt MESSAGES['not_valid_choice']
-    sleep PAUSE_TIME
   end
-end
-
-def reset_scores
-  { player: 0, computer: 0 }
 end
 
 def ask_current_player
@@ -57,7 +59,6 @@ def ask_current_player
                      end
     return current_player if current_player
     prompt MESSAGES['not_valid_choice']
-    sleep PAUSE_TIME
   end
 end
 
@@ -67,10 +68,48 @@ def initialize_board
   new_board
 end
 
+def display_round(round)
+  puts add_ident(format(MESSAGES['round']['heading'], round: round))
+end
+
+def display_scores(scores)
+  puts add_ident(format(MESSAGES['score']['heading']))
+  puts add_ident(
+    format(
+      MESSAGES['score']['display'],
+      player_score: scores[:player], computer_score: scores[:computer]
+    )
+  )
+  puts add_ident(
+    format(
+      MESSAGES['wins_needed']['display'],
+      wins_needed: WINS_NEEDED, round: WINS_NEEDED > 1 ? 'rounds' : 'round'
+    )
+  )
+end
+
+def display_legend
+  puts add_ident(MESSAGES['legend']['heading'])
+  puts add_ident(
+    format(
+      MESSAGES['legend']['display'],
+      player_marker: PLAYER_MARKER, computer_marker: COMPUTER_MARKER
+    )
+  )
+end
+
+def display_status(round, scores)
+  puts '-' * BOARD_WIDTH
+  display_round(round)
+  puts ""
+  display_scores(scores)
+  puts ""
+  display_legend
+  puts '-' * BOARD_WIDTH
+end
+
 # rubocop: disable Metrics/AbcSize
 def display_board(board)
-  system 'clear'
-  puts "You're '#{PLAYER_MARKER}'. Computer is '#{COMPUTER_MARKER}'."
   puts ""
   puts "     |     |"
   puts "  #{board[1]}  |  #{board[2]}  |  #{board[3]}"
@@ -87,18 +126,12 @@ def display_board(board)
 end
 # rubocop: enable Metrics/AbcSize
 
-def display_winner(board)
-  prompt format(
-    MESSAGES['display_winner'],
-    winner: detect_winner(board) == PLAYER ? 'You' : detect_winner(board)
-  )
-end
-
-def display_scores(scores)
-  prompt format(
-    MESSAGES['display_scores'],
-    player_score: scores[:player], computer_score: scores[:computer]
-  )
+def joinor(array, delimiter = ', ', connector = 'or')
+  if array.size <= 2
+    array.join(" #{connector} ")
+  elsif array.size > 2
+    array[0...-1].join(delimiter) + "#{delimiter}#{connector} #{array[-1]}"
+  end
 end
 
 def empty_squares(board)
@@ -161,22 +194,6 @@ def alternate_player(current_player)
   current_player == PLAYER ? COMPUTER : PLAYER
 end
 
-def joinor(array, delimiter = ', ', connector = 'or')
-  if array.size <= 2
-    array.join(" #{connector} ")
-  elsif array.size > 2
-    array[0...-1].join(delimiter) + "#{delimiter}#{connector} #{array[-1]}"
-  end
-end
-
-def board_full?(board)
-  empty_squares(board).empty?
-end
-
-def someone_won?(board)
-  !!detect_winner(board)
-end
-
 def detect_winner(board)
   WINNING_LINES.each do |line|
     if board.values_at(*line).all? { |marker| marker == PLAYER_MARKER }
@@ -188,6 +205,14 @@ def detect_winner(board)
   nil
 end
 
+def someone_won?(board)
+  !!detect_winner(board)
+end
+
+def board_full?(board)
+  empty_squares(board).empty?
+end
+
 def add_score(board, scores)
   winner = detect_winner(board)
   case winner
@@ -196,49 +221,112 @@ def add_score(board, scores)
   end
 end
 
+def display_round_winner(board, scores)
+  puts '-' * BOARD_WIDTH
+  puts ""
+  puts add_ident(
+    format(
+      MESSAGES['display_round_winner'],
+      winner: detect_winner(board)
+    )
+  )
+  puts ""
+  display_scores(scores)
+  puts ""
+  puts '-' * BOARD_WIDTH
+end
+
+def display_tie
+  puts '-' * BOARD_WIDTH
+  puts ""
+  puts add_ident(MESSAGES['tie'])
+  puts ""
+  puts '-' * BOARD_WIDTH
+end
+
+def display_grand_winner(board)
+  puts '*' * BOARD_WIDTH
+  puts '*' * BOARD_WIDTH
+  puts ""
+  puts add_ident(
+    format(
+      MESSAGES['display_grand_winner'],
+      winner: detect_winner(board),
+      verb: detect_winner(board) == PLAYER ? 'are' : 'is'
+    )
+  )
+  puts ""
+  puts '*' * BOARD_WIDTH
+  puts '*' * BOARD_WIDTH
+end
+
 def start_new_round
   prompt MESSAGES['start_new_round']
   gets.chomp
 end
 
 def play_again?
-  prompt MESSAGES['play_again']
-  play_again = gets.chomp
-  play_again.downcase != 'q'
+  loop do
+    prompt MESSAGES['play_again']
+    play_again = gets.chomp
+    if play_again == ''
+      return true
+    elsif play_again.downcase == 'q'
+      return false
+    end
+    prompt MESSAGES['not_valid_choice']
+  end
 end
 
 # Main Program
 
-display_welcome_msg
+system 'clear'
+prompt MESSAGES['welcome']
 display_rules
 
+# loop for each game
 loop do
-  scores = reset_scores
+  round = 0
+  scores = { player: 0, computer: 0 }
+  system 'clear'
   current_player = ask_current_player
 
+  # loop for each round
   loop do
+    round += 1
     board = initialize_board
 
+    # loop for each player's turn
     loop do
+      system 'clear'
+      display_status(round, scores)
       display_board(board)
       place_piece!(board, current_player)
       current_player = alternate_player(current_player)
       break if someone_won?(board) || board_full?(board)
     end
 
-    display_board(board)
+    system 'clear'
     if someone_won?(board)
-      display_winner(board)
       add_score(board, scores)
+      display_round_winner(board, scores)
     else
-      prompt MESSAGES['tie']
+      display_tie
     end
-    display_scores(scores)
+    display_board(board)
 
-    scores.values.include?(WINS_NEEDED) ? break : start_new_round
+    if scores.values.include?(WINS_NEEDED)
+      system 'clear'
+      display_grand_winner(board)
+      display_board(board)
+      break
+    else
+      start_new_round
+    end
   end
 
   break if !play_again?
 end
 
+system 'clear'
 prompt MESSAGES['goodbye']
