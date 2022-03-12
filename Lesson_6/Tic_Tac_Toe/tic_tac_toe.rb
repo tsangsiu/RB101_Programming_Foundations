@@ -42,7 +42,7 @@ end
 def display_rules
   loop do
     prompt MESSAGES['display_rules']
-    display_rules = gets.chomp
+    display_rules = gets.chomp.strip
     if ['help', 'h'].include?(display_rules.downcase)
       system 'clear'
       prompt format(
@@ -60,7 +60,7 @@ def ask_current_player
   current_player = ''
   loop do
     prompt MESSAGES['get_current_player']
-    current_player = gets.chomp
+    current_player = gets.chomp.strip
     current_player = case current_player.downcase
                      when ''              then PLAYER
                      when 'computer', 'c' then COMPUTER
@@ -294,7 +294,7 @@ end
 def play_again?
   loop do
     prompt MESSAGES['play_again']
-    play_again = gets.chomp
+    play_again = gets.chomp.strip
     if play_again == ''
       return true
     elsif play_again.downcase == 'q'
