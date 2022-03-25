@@ -20,6 +20,10 @@ RANKS = [('2'..'9').to_a, '10', FACES, ACE].flatten
 
 # Methods
 
+def prompt(msg)
+  puts "=> #{msg}"
+end
+
 def init_deck
   deck = []
   SUITS.each do |suit|
@@ -30,19 +34,6 @@ def init_deck
   deck
 end
 
-=begin
-Algorithm for calculate_total:
-- Get the ranks of the cards
-- Note the number of ace, save it to `number_of_ace`
-- Calculate the total of the ranks using the following rules:
-  - The numbers 2 through 10 are worth their face value
-  - The jack, queen, and king are each worth 10
-  - The ace is worth 11
-- If the total is over 21,
-  - for at most `number_of_ace` times,
-    - minus 10 until the total is less than 21
-- Return the total
-=end
 def calculate_total(cards)
   ranks = cards.flatten.select { |rank| RANKS.include?(rank) }
 
@@ -64,8 +55,35 @@ def calculate_total(cards)
   total
 end
 
+def busted?(cards)
+  calculate_total(cards) > 21
+end
+
 # Main Program
 
 deck = init_deck
-# deck = [["Heart", "2"], ["Heart", "A"], ["Heart", "5"], ["Club", "A"]]
-p calculate_total(deck)
+player_cards = [["Heart", "2"], ["Heart", "A"], ["Heart", "5"], ["Club", "A"]]
+
+# player's turn
+hit_or_stay = nil
+loop do
+  prompt "Press [enter] to hit, or enter 'stay' or 's' to stay."
+  hit_or_stay = gets.chomp
+  break if ['stay', 's'].include?(hit_or_stay.downcase) || busted?(player_cards)
+end
+if busted?(player_cards)
+  prompt "Computer won!"
+else
+  prompt "You chose to stay!"
+end
+
+# dealer's turn
+# dealer hits until the total is at least 17
+loop do
+  break if calculate_total(dealer_cards) >= 17
+end
+if busted?(dealer_cards)
+  prompt "You won!"
+else
+  prompt "Computer chose to stay!"
+end
