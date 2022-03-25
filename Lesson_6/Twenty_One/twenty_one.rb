@@ -59,10 +59,23 @@ def busted?(cards)
   calculate_total(cards) > 21
 end
 
+def determine_winner(player_cards, dealer_cards)
+  if calculate_total(player_cards) > calculate_total(dealer_cards)
+    "Player won!"
+  else
+    "Dealer won!"
+  end
+end
+
+def display_winner(player_cards, dealer_cards)
+  prompt determine_winner(player_cards, dealer_cards)
+end
+
 # Main Program
 
 deck = init_deck
 player_cards = [["Heart", "2"], ["Heart", "A"], ["Heart", "5"], ["Club", "A"]]
+dealer_cards = [["Heart", "8"], ["Spade", "A"]]
 
 # player's turn
 hit_or_stay = nil
@@ -72,7 +85,7 @@ loop do
   break if ['stay', 's'].include?(hit_or_stay.downcase) || busted?(player_cards)
 end
 if busted?(player_cards)
-  prompt "Computer won!"
+  prompt "Dealer won!"
 else
   prompt "You chose to stay!"
 end
@@ -85,5 +98,7 @@ end
 if busted?(dealer_cards)
   prompt "You won!"
 else
-  prompt "Computer chose to stay!"
+  prompt "Dealer chose to stay!"
 end
+
+display_winner(player_cards, dealer_cards)
