@@ -25,17 +25,11 @@ def prompt(msg)
 end
 
 def init_deck
-  deck = []
-  SUITS.each do |suit|
-    RANKS.each do |rank|
-      deck << [suit, rank]
-    end
-  end
-  deck
+  SUITS.product(RANKS).shuffle!
 end
 
-def calculate_total(cards)
-  ranks = cards.flatten.select { |rank| RANKS.include?(rank) }
+def total(cards)
+  ranks = cards.map { |card| card.last }
 
   total = 0
   ranks.each do |rank|
@@ -47,7 +41,6 @@ def calculate_total(cards)
                rank.to_i
              end
   end
-
   ranks.count(ACE).times do
     total -= 10 if total > 21
   end
@@ -56,49 +49,80 @@ def calculate_total(cards)
 end
 
 def busted?(cards)
-  calculate_total(cards) > 21
+  total(cards) > 21
 end
 
-def determine_winner(player_cards, dealer_cards)
-  if calculate_total(player_cards) > calculate_total(dealer_cards)
-    "Player won!"
-  else
-    "Dealer won!"
-  end
+def display_cards(player_cards, dealer_cards)
+  prompt "#{"=" * 40}"
+  prompt "You have #{player_cards}."
+  prompt "Dealer has #{dealer_cards.first} and ?."
+  prompt "#{"=" * 40}"
 end
 
 def display_winner(player_cards, dealer_cards)
-  prompt determine_winner(player_cards, dealer_cards)
+  if busted?(player_cards)
+    prompt "Dealer won!"
+  elsif busted?(dealer_cards)
+    prompt "You won!"
+  elsif total(player_cards) > total(dealer_cards)
+    prompt "You won!"
+  elsif total(dealer_cards) > total(player_cards)
+    prompt "Dealer won!"
+  else
+    prompt "It's a tie!"
+  end
+end
+
+def reveal_cards(player_cards, dealer_cards)
+  prompt "#{"=" * 40}"
+  prompt "You have #{player_cards}."
+  prompt "Dealer has #{dealer_cards}."
+  prompt "#{"=" * 40}"
 end
 
 # Main Program
 
 deck = init_deck
-player_cards = [["Heart", "2"], ["Heart", "A"], ["Heart", "5"], ["Club", "A"]]
-dealer_cards = [["Heart", "8"], ["Spade", "A"]]
+player_cards = []
+dealer_cards = []
+2.times do
+  player_cards << deck.pop
+  dealer_cards << deck.pop
+end
 
 # player's turn
 hit_or_stay = nil
 loop do
+  display_cards(player_cards, dealer_cards)
   prompt "Press [enter] to hit, or enter 'stay' or 's' to stay."
   hit_or_stay = gets.chomp
-  break if ['stay', 's'].include?(hit_or_stay.downcase) || busted?(player_cards)
-end
-if busted?(player_cards)
-  prompt "Dealer won!"
-else
-  prompt "You chose to stay!"
+  if hit_or_stay == ""
+    prompt "You chose to hit!"
+    player_cards << deck.pop
+    if busted?(player_cards)
+      display_winner(player_cards, dealer_cards)
+      break
+    end
+  elsif ['stay', 's'].include?(hit_or_stay.downcase)
+    break  
+  end
 end
 
 # dealer's turn
-# dealer hits until the total is at least 17
 loop do
-  break if calculate_total(dealer_cards) >= 17
-end
-if busted?(dealer_cards)
-  prompt "You won!"
-else
-  prompt "Dealer chose to stay!"
+  break if busted?(player_cards)
+  if total(dealer_cards) >= 17
+    display_winner(player_cards, dealer_cards)
+    break
+  else
+    prompt "Dealer chose to hit!"
+    dealer_cards << deck.pop
+    if busted?(dealer_cards)
+      display_winner(player_cards, dealer_cards)
+      break
+    end
+  end
 end
 
-display_winner(player_cards, dealer_cards)
+reveal_cards(player_cards, dealer_cards)
+prompt "Goodbye!"
