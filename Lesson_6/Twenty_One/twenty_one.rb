@@ -17,6 +17,8 @@ ACE = 'A'
 FACES = ['J', 'Q', 'K']
 SUITS = ['Club', 'Diamond', 'Heart', 'Spade']
 RANKS = [('2'..'9').to_a, '10', FACES, ACE].flatten
+WORD_TO_SUIT = { 'Club' => '♣', 'Diamond' => '♦',
+                 'Heart' => '♥', 'Spade' => '♠' }
 
 # Methods
 
@@ -52,11 +54,31 @@ def busted?(cards)
   total(cards) > 21
 end
 
+def cards_to_graphical(cards)
+  cards.map { |card| "[#{WORD_TO_SUIT[card.first]} #{card.last}]" }
+end
+
+def dealer_cards_to_graphical(dealer_cards)
+  dealer_cards.map.with_index do |card, index|
+    if index == 0
+      "[#{WORD_TO_SUIT[card.first]} #{card.last}]"
+    else
+      "[?]"
+    end
+  end
+end
+
+def join_and(array, delimiter = ', ', connector = 'and')
+  if array.size <= 2
+    array.join(" #{connector} ")
+  elsif array.size > 2
+    array[0...-1].join(delimiter) + " #{connector} #{array[-1]}"
+  end
+end
+
 def display_cards(player_cards, dealer_cards)
-  prompt "#{"=" * 40}"
-  prompt "You have #{player_cards}."
-  prompt "Dealer has #{dealer_cards.first} and ?."
-  prompt "#{"=" * 40}"
+  prompt "Your have #{join_and(cards_to_graphical(player_cards))}."
+  prompt "Dealer has #{join_and(dealer_cards_to_graphical(dealer_cards))}."
 end
 
 def display_winner(player_cards, dealer_cards)
@@ -74,10 +96,8 @@ def display_winner(player_cards, dealer_cards)
 end
 
 def reveal_cards(player_cards, dealer_cards)
-  prompt "#{"=" * 40}"
-  prompt "You have #{player_cards}."
-  prompt "Dealer has #{dealer_cards}."
-  prompt "#{"=" * 40}"
+  prompt "Your have #{join_and(cards_to_graphical(player_cards))}."
+  prompt "Dealer has #{join_and(cards_to_graphical(dealer_cards))}."
 end
 
 # Main Program
