@@ -100,49 +100,67 @@ def reveal_cards(player_cards, dealer_cards)
   prompt "Dealer has #{join_and(cards_to_graphical(dealer_cards))}."
 end
 
+def play_again?
+  loop do
+    prompt "Press [enter] to play again, or enter 'quit' or 'q' to quit."
+    play_again = gets.chomp.strip
+    if play_again == ''
+      return true
+    elsif ['quit', 'q'].include?(play_again.downcase)
+      return false
+    end
+    prompt "Sorry, that's not a valid choice."
+  end
+end
+
 # Main Program
 
-deck = init_deck
-player_cards = []
-dealer_cards = []
-2.times do
-  player_cards << deck.pop
-  dealer_cards << deck.pop
-end
-
-# player's turn
-hit_or_stay = nil
 loop do
-  display_cards(player_cards, dealer_cards)
-  prompt "Press [enter] to hit, or enter 'stay' or 's' to stay."
-  hit_or_stay = gets.chomp
-  if hit_or_stay == ""
-    prompt "You chose to hit!"
+  deck = init_deck
+  player_cards = []
+  dealer_cards = []
+  2.times do
     player_cards << deck.pop
-    if busted?(player_cards)
-      display_winner(player_cards, dealer_cards)
-      break
-    end
-  elsif ['stay', 's'].include?(hit_or_stay.downcase)
-    break  
-  end
-end
-
-# dealer's turn
-loop do
-  break if busted?(player_cards)
-  if total(dealer_cards) >= 17
-    display_winner(player_cards, dealer_cards)
-    break
-  else
-    prompt "Dealer chose to hit!"
     dealer_cards << deck.pop
-    if busted?(dealer_cards)
-      display_winner(player_cards, dealer_cards)
-      break
+  end
+
+  # player's turn
+  hit_or_stay = nil
+  loop do
+    display_cards(player_cards, dealer_cards)
+    prompt "Press [enter] to hit, or enter 'stay' or 's' to stay."
+    hit_or_stay = gets.chomp
+    if hit_or_stay == ""
+      prompt "You chose to hit!"
+      player_cards << deck.pop
+      if busted?(player_cards)
+        display_winner(player_cards, dealer_cards)
+        break
+      end
+    elsif ['stay', 's'].include?(hit_or_stay.downcase)
+      break  
     end
   end
+
+  # dealer's turn
+  loop do
+    break if busted?(player_cards)
+    if total(dealer_cards) >= 17
+      reveal_cards(player_cards, dealer_cards)
+      display_winner(player_cards, dealer_cards)
+      break
+    else
+      prompt "Dealer chose to hit!"
+      dealer_cards << deck.pop
+      if busted?(dealer_cards)
+        reveal_cards(player_cards, dealer_cards)
+        display_winner(player_cards, dealer_cards)
+        break
+      end
+    end
+  end
+
+  break unless play_again?
 end
 
-reveal_cards(player_cards, dealer_cards)
 prompt "Goodbye!"
