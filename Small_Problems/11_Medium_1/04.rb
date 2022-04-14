@@ -1,56 +1,73 @@
+=begin
+
+Problem
+- Rules:
+  - You have a bank of switches before you, numbered from 1 to n
+  - On the first pass, you toggle every switch
+  - On the second pass, you toggle swithces 2, 4, 6, ...
+  - On the third pass, you toggle switches 3, 6, 9, ...
+  - Repeat the above process in a similar fashion for n times
+  - Write a method that takes one argument, the total number of switches and returns an Array that identifies which lights are on after n repetitions
+- Input: Integer (the total number of switches)
+- Output: Array (an Array that identifies which lights are on at the end)
+
+Examples
+toggle_light(5) == [1, 4]
+toggle_light(10) == [1, 4, 9]
+
+Data Structure
+- Input: Integer
+- Intermediate: Array
+- Output: Array
+
+Algorithm
+- Helper method: `toggle(light)`
+  - If the light is off (0), turn it on (1)
+  - Else turn it off (0)
+
+- Subprocess: To get the indics of the element in the Array (and then plues 1) where the element equals 1
+- Helper method: `which_lights_on(lights)`
+  - Initalize an empty array for output
+  - Iterate through the bank of lights:
+    - If the light is on,
+      - get its index and plus 1
+      - push that number to the output array
+  - Return the array
+
+- Main method: `toggle_lights(n)`
+  - Create an array of 0's of size n (0 means off and 1 means off)
+  - Set `counter` = 1
+  - While `counter` <= n:
+    - Suppose the current number of iteration is `i`, toggle lights at positions where their indices in the array plus 1 areis divisible by i
+    - Increment `counter` by 1
+  - Get the indices of the element in the Array (and then plus 1) where the element equals 1 (meaning light's on)
+  - Return the Array
+
+=end
+
 def toggle(light)
   light == 0 ? 1 : 0
 end
 
+def which_lights_on(lights)
+  lights_on = []
+  lights.each_with_index do |light, index|
+    light_position = index + 1
+    light_on << light_position if light == 1
+  end
+  lights_on
+end
+
 def toggle_lights(n)
   lights = [0] * n
-  1.upto(n) do |round|
+  1.upto(n) do |iteration|
     lights.each_with_index do |light, index|
-      lights[index] = toggle(light) if (index + 1) % round == 0
+      light_position = index + 1
+      lights[index] = toggle(light) if light_position % iteration == 0
     end
   end
-  lights
+  which_lights_on(lights)
 end
 
-def which_lights_are_on(n)
-  lights = toggle_lights(n)
-  output = []
-  lights.each_with_index do |light, index|
-    output << (index + 1) if light == 1
-  end
-  output
-end
-
-# Further Exploration
-=begin
-1.
-For a light at the position n, it's on after all toggling if it's toggled odd
-number of times. At the i-th round of toggling, the light at the position n is
-toggled if i is a factor of n. That means, if n has an odd number of factors,
-the light at position n is on after all toggling. And square numbers are those 
-numbers which have odd number of factors.
-
-2.
-We have to consider the position index of the lights very carefully, because
-array index is counted from 0, while light position is counted from 1.
-=end
-
-# 3.
-def which_lights_are_on(n)
-  lights = toggle_lights(n)
-  on_lights = []
-  off_lights = []
-
-  lights.each_with_index do |light, index|
-    light == 1 ? on_lights << (index + 1) : off_lights << (index + 1)
-  end
-
-  on_lights = "#{on_lights[0...-1].join(', ')} and #{on_lights[-1]}"
-  off_lights = "#{off_lights[0...-1].join(', ')} and #{off_lights[-1]}"
-
-  "lights #{off_lights} are now off; #{on_lights} are on."
-end
-
-puts which_lights_are_on(5)
-puts which_lights_are_on(10)
-# puts which_lights_are_on(1000)
+p toggle_lights(5) #== [1, 4]
+p toggle_lights(10) #== [1, 4, 9]
