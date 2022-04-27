@@ -53,7 +53,7 @@ def which_lights_on(lights)
   lights_on = []
   lights.each_with_index do |light, index|
     light_position = index + 1
-    light_on << light_position if light == 1
+    lights_on << light_position if light == 1
   end
   lights_on
 end
@@ -69,5 +69,51 @@ def toggle_lights(n)
   which_lights_on(lights)
 end
 
-p toggle_lights(5) #== [1, 4]
-p toggle_lights(10) #== [1, 4, 9]
+p toggle_lights(5) == [1, 4]
+p toggle_lights(10) == [1, 4, 9]
+
+# Further Exploration
+
+=begin
+
+1.
+For a light at the position n, it's on after all toggling if it's toggled odd
+number of times. At the i-th round of toggling, the light at the position n is
+toggled if i is a factor of n. That means, if n has odd number of factors, the
+light at position n is on after all toggling. And square numbers are those
+numbers which have odd number of factors.
+
+2.
+We have to consider the position index of the lights very carefully, because
+array index is counted from 0, while light position is counted from 1.
+
+=end
+
+# 3.
+
+def connect(arr, connector = 'and')
+  if arr.size == 1
+    arr.first.to_s
+  elsif arr.size == 2
+    arr.join(" #{connector} ")
+  else
+    arr[0...-1].join(', ') + ", #{connector} #{arr[-1]}"
+  end
+end
+
+def is_or_are(arr)
+  arr.size == 1 ? "is" : "are"
+end
+
+def which_lights_on_desc(n)
+  lights_on = toggle_lights(n)
+  lights_off = (1..n).select { |light| !lights_on.include?(light) }
+
+  lights_on_verb = is_or_are(lights_on)
+  lights_off_verb = is_or_are(lights_off)
+
+  "#{lights_off.size > 1 ? "Lights" : "Light"} #{connect(lights_off)} #{lights_on_verb} now off; #{connect(lights_on)} #{lights_off_verb} on"
+end
+
+p which_lights_on_desc(5)
+p which_lights_on_desc(10)
