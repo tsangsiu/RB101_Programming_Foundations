@@ -1,18 +1,55 @@
-def minilang(program)
-  stack = []
-  register = 0
+=begin
 
-  program.split.each do |command|
-    case command
-    when 'PUSH'  then stack << register
-    when 'ADD'   then register += stack.pop
-    when 'SUB'   then register -= stack.pop
-    when 'MULT'  then register *= stack.pop
-    when 'DIV'   then register /= stack.pop
-    when 'MOD'   then register %= stack.pop
-    when 'POP'   then register = stack.pop
-    when 'PRINT' then puts register
-    else              register = command.to_i
+# Problem
+- stack-and-register programming language
+- each operation operates on a register (current value)
+- if an operation needs two values, pop the topmost item from the stack
+- perform the operation using the popped value and the register value
+- store the result back to the register
+
+# Example:
+- stack: [3, 6, 4]; register: 7
+- consider the multiply operation (MULT)
+- pop the stack (and get 4), times the register value 7, to get 28
+- now becomes:
+- stack: [3, 6]; register: 28
+
+# Data Structures
+- Input: a String of programming code
+- Intermediate: Array (stack), Integer (register)
+- Output: Integer
+
+# Algorithm
+- Initialize `register` to `0`
+- Initialize `stack` to an empty Array
+- Split the given programming code at spaces
+- Iterate through the commands
+  - If the current command is a number,
+    - Push it to the register
+  - Else,
+    - Do the corresponding operation as stated
+
+=end
+
+# Code
+def minilang(lang)
+  register = 0
+  stack = []
+  commands = lang.split
+  commands.each do |command|
+    if command.to_i.to_s == command
+      register = command.to_i
+    else
+      case command
+      when 'PUSH'  then stack << register
+      when 'ADD'   then register += stack.pop
+      when 'SUB'   then register -= stack.pop
+      when 'MULT'  then register *= stack.pop
+      when 'DIV'   then register /= stack.pop
+      when 'MOD'   then register %= stack.pop
+      when 'POP'   then register = stack.pop
+      when 'PRINT' then puts register
+      end
     end
   end
 end
@@ -27,14 +64,25 @@ end
 # minilang('-3 PUSH 5 SUB PRINT')
 # minilang('6 PUSH')
 
-# Further Exploration
 =begin
-Unlike the usual operation, the last operation are handled first,
-because: register = register [operation] stack.pop
+
+# Further Exploration
+
+# Problem
+- Use `minilang` to print the result of the expression:
+  - (3 + (4 * 5) - 7) / (5 % 3)
+
+# Brainstorm
+- Expressions calculated at last should do first in `minilang` and push the result to the stack
+- 5 % 3 -> 3 PUSH 5 MOD PUSH
+  - stack: [2], register: 2
+- (- 7) -> 7 PUSH
+  - stack: [2, 7], register: 7
+- 4 * 5 -> 5 PUSH 4 MULT PUSH
+  - stack: [2, 7, 20], register: 20
+- 3
+  - stack: [2, 7, 20], register: 3
+
 =end
-minilang(
-  '3 PUSH 5 MOD PUSH ' +  # register: 2, stack: [2]
-  '7 PUSH ' +             # register: 7, stack: [2, 7]
-  '5 PUSH 4 MULT PUSH ' + # register: 20, stack: [2, 7, 20]
-  '3 ADD SUB DIV PRINT'
-)
+
+minilang('3 PUSH 5 MOD PUSH 7 PUSH 5 PUSH 4 MULT PUSH 3 ADD SUB DIV PRINT') # prints 8
