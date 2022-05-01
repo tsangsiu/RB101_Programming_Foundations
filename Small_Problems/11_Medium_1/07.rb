@@ -90,25 +90,24 @@ p word_to_digit('Please call me at five five five one two three four. Thanks.')
 =end
 
 # Code
-def format_phone_number(str)
-  str =~ /^[0-9]{10}$/ ? "(#{str[0..2]}) #{str[3..5]}-#{str[6..9]}" : str
+def format_phone_number!(words)
+  if words =~ /\b[0-9]{10}\b/
+    phone_number = words[words =~ /\b[0-9]{10}\b/, 10]
+    words.gsub!(phone_number, "(#{phone_number[0..2]}) #{phone_number[3..5]}-#{phone_number[6..9]}")
+  else
+    words
+  end
 end
 
 def word_to_digit(words)
   PATTERN.each_with_index do |pattern, index|
     words.gsub!(pattern, index.to_s)
   end
-
   remove_space_between_numbers!(words)
-
-  # format the 10-digit phone number
-  if words =~ /\b[0-9]{10}\b/
-    phone_number = words[words =~ /[0-9]{10}/, 10]
-    formatted_phone_number = format_phone_number(phone_number)
-    words.gsub!(phone_number, formatted_phone_number)
-  end
+  format_phone_number!(words)
+  words
 end
 
-str = 'My phone number is one two three four five six seven eight nine zero one.'
+str = 'My phone number is one two three four five six seven eight nine zero.'
 word_to_digit(str)
 p str
