@@ -26,7 +26,7 @@ def friday_13th(year)
   count = 0
   1.upto(12) do |month|
     date = Date.new(year, month, 13)
-	count += 1 if date.friday?
+    count += 1 if date.friday?
   end
   count
 end
