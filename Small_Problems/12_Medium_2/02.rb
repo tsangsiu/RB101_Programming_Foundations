@@ -36,7 +36,7 @@ def block_word?(word)
     if block.all? { |letter| word.upcase.split('').include?(letter) } || block.empty?
       return false
     else
-  	  blocks.delete(block)
+      blocks.delete(block)
     end
   end
   true  
