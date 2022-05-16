@@ -42,6 +42,17 @@ def transpose(matrix)
   transposed_array
 end
 
+def transpose(matrix)
+  transposed_matrix = []
+  n_row = matrix.size
+  n_col = matrix[0].size
+  (0...n_col).each do |col_number|
+    new_row = (0...n_row).map { |row_number| matrix[row_number][col_number] }
+    transposed_matrix << new_row
+  end
+  transposed_matrix
+end
+
 p transpose([[1, 2, 3, 4]]) == [[1], [2], [3], [4]]
 p transpose([[1], [2], [3], [4]]) == [[1, 2, 3, 4]]
 p transpose([[1, 2, 3, 4, 5], [4, 3, 2, 1, 0], [3, 7, 8, 6, 2]]) == [[1, 4, 3], [2, 3, 7], [3, 2, 8], [4, 1, 6], [5, 0, 2]]

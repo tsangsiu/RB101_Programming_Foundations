@@ -38,6 +38,15 @@ def transpose(matrix)
   transposed_matrix
 end
 
+def transpose(matrix)
+  transposed_matrix = []
+  (0..2).each do |col_number|
+    new_row = (0..2).map { |row_number| matrix[row_number][col_number] }
+    transposed_matrix << new_row
+  end
+  transposed_matrix
+end
+
 matrix = [
   [1, 5, 8],
   [4, 7, 2],
