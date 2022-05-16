@@ -23,6 +23,6 @@ invocation of `map` on `array` with the block as an argument. As the `map`
 method always returns an Array, which is truthy, the `elsif` block is
 evaluated. As the method invocation of `map` on `array` with the block as an
 argument is already taken as a condition, the `elsif` block is empty. Hence, the
-method `my_method` returns `nil` for non-empty Arrays.
+method `my_method` returns `nil` for Arrays of size greater than 1.
 
 =end
