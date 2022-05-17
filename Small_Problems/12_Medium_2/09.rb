@@ -29,8 +29,8 @@ p array == %w(Alice Bonnie Kim Pete Rachel Sue Tyler)
 
 def bubble_sort!(array)
   until array == array.sort
-    0.upto(array.size - 1) do |index|
-      array[index], array[index + 1] = array[index + 1], array[index] if (array[index] <=> array[index + 1]) == 1
+    0.upto(array.size - 2) do |index|
+      array[index], array[index + 1] = array[index + 1], array[index] if array[index] > array[index + 1]
     end
   end
   array
