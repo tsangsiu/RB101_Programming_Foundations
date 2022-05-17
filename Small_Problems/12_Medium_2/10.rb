@@ -26,7 +26,7 @@ sum_square_difference(100) == 25164150
 
 # Code
 def sum_square_difference(n)
-  square_of_sum = (1..n).sum**2
+  square_of_sum = (1..n).sum ** 2
   sum_of_square = (1..n).to_a.map { |num| num ** 2 }.sum
   square_of_sum - sum_of_square
 end
