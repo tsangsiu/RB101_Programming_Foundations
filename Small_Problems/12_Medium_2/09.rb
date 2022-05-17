@@ -25,6 +25,16 @@ p array == %w(Alice Bonnie Kim Pete Rachel Sue Tyler)
       - Exchange those two elements
 - Return the given Array
 
+# Another Algorithm (Without Using `sort`)
+- Loop
+  - Set `swapped` to `false`
+  - From index position 0 to array.size - 2,
+    - If the current element is greater than the next one,
+      - Swap the two elements
+      - Set `swapped` to `true`
+  - Break the loop if `swapped` == `false`
+- Return the Array
+
 =end
 
 def bubble_sort!(array)
@@ -32,6 +42,20 @@ def bubble_sort!(array)
     0.upto(array.size - 2) do |index|
       array[index], array[index + 1] = array[index + 1], array[index] if array[index] > array[index + 1]
     end
+  end
+  array
+end
+
+def bubble_sort!(array)
+  loop do
+    swapped = false
+    0.upto(array.size - 2) do |index|
+      if array[index] > array[index + 1]
+        array[index], array[index + 1] = array[index + 1], array[index]
+        swapped = true
+      end
+    end
+    break if swapped == false
   end
   array
 end
