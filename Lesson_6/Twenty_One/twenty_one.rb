@@ -11,23 +11,62 @@ High-Level Flow:
 7. Compare cards and declare winner.
 =end
 
+require "yaml"
+MESSAGES = YAML.load_file('messages.yml')
+
 # Constants
 
 ACE = 'A'
 FACES = ['J', 'Q', 'K']
 SUITS = ['Club', 'Diamond', 'Heart', 'Spade']
-RANKS = [('2'..'9').to_a, '10', FACES, ACE].flatten
+RANKS = [*('2'..'9').to_a, '10', *FACES, ACE]
 WORD_TO_SUIT = { 'Club' => '♣', 'Diamond' => '♦',
                  'Heart' => '♥', 'Spade' => '♠' }
+PROMPT = "=>"
+SLEEP_TIME = 0.4
 
 # Methods
 
-def prompt(msg)
-  puts "=> #{msg}"
+def prompt(msg, loading = false, number_of_dots = 4)
+  if loading
+    0.upto(number_of_dots) do |i|
+      print "\r#{PROMPT} #{msg}#{'.' * i}"
+      $stdout.flush
+      sleep SLEEP_TIME
+    end
+    print "\n"
+  else
+    puts "#{PROMPT} #{msg}"
+  end
+end
+
+def press_enter_to_continue
+  prompt "Press [enter] to continue."
+  gets
 end
 
 def init_deck
   SUITS.product(RANKS).shuffle!
+end
+
+def init_deal_cards(deck, player_cards, dealer_cards)
+  2.times do
+    player_cards << deck.pop
+    dealer_cards << deck.pop
+  end
+end
+
+def deal_cards(deck, cards)
+  cards << deck.pop
+end
+
+def hit_or_stay
+  loop do
+    prompt "Press [enter] to hit, or enter 'stay' or 's' to stay."
+    hit_or_stay = gets.chomp.strip
+    break hit_or_stay if ["", "stay", "s"].include?(hit_or_stay.downcase)
+    prompt "Sorry, that's not a valid choice."
+  end
 end
 
 def total(cards)
@@ -76,28 +115,53 @@ def join_and(array, delimiter = ', ', connector = 'and')
   end
 end
 
-def display_cards(player_cards, dealer_cards)
-  prompt "Your have #{join_and(cards_to_graphical(player_cards))}."
-  prompt "Dealer has #{join_and(dealer_cards_to_graphical(dealer_cards))}."
+def msg_cards(player_cards, dealer_cards, reveal)
+  msg_player_cards = "You have #{join_and(cards_to_graphical(player_cards))}."
+  if reveal
+    msg_dealer_cards = "Dealer has #{join_and(cards_to_graphical(dealer_cards))}."
+  else
+    msg_dealer_cards = "Dealer has #{join_and(dealer_cards_to_graphical(dealer_cards))}."
+  end
+  [msg_player_cards, msg_dealer_cards]
 end
 
-def display_winner(player_cards, dealer_cards)
+def display_cards(player_cards, dealer_cards, reveal)
+  msg_cards = msg_cards(player_cards, dealer_cards, reveal)
+  bannerise(msg_cards)
+end
+
+def winner(player_cards, dealer_cards)
   if busted?(player_cards)
-    prompt "Dealer won!"
+    "Dealer won!"
   elsif busted?(dealer_cards)
-    prompt "You won!"
+    "You won!"
   elsif total(player_cards) > total(dealer_cards)
-    prompt "You won!"
+    "You won!"
   elsif total(dealer_cards) > total(player_cards)
-    prompt "Dealer won!"
+    "Dealer won!"
   else
-    prompt "It's a tie!"
+    "It's a tie!"
   end
 end
 
-def reveal_cards(player_cards, dealer_cards)
-  prompt "Your have #{join_and(cards_to_graphical(player_cards))}."
-  prompt "Dealer has #{join_and(cards_to_graphical(dealer_cards))}."
+def msg_results(player_cards, dealer_cards, reveal)
+  winner = winner(player_cards, dealer_cards)
+  msg_cards = msg_cards(player_cards, dealer_cards, reveal)
+  [winner] + [" "] + msg_cards
+end
+
+def display_results(player_cards, dealer_cards, reveal = true)
+  msg_results = msg_results(player_cards, dealer_cards, reveal)
+  bannerise(msg_results)
+end
+
+def bannerise(msg_array, divider = '-', margin = 2)
+  divider_length = msg_array.max { |msg| msg.length }.length
+  puts divider * (divider_length + margin * 2)
+  msg_array.each do |msg|
+    puts " " * margin + msg
+  end
+  puts divider * (divider_length + margin * 2)
 end
 
 def play_again?
@@ -115,26 +179,33 @@ end
 
 # Main Program
 
+system "clear"
+prompt MESSAGES["welcome"]
+sleep SLEEP_TIME
+press_enter_to_continue
+
 loop do
+  system 'clear'
+
   deck = init_deck
-  player_cards = []
-  dealer_cards = []
-  2.times do
-    player_cards << deck.pop
-    dealer_cards << deck.pop
-  end
+  player_cards = []; dealer_cards = []
+  prompt(MESSAGES["dealing_cards"], loading = true)
+  init_deal_cards(deck, player_cards, dealer_cards)
 
   # player's turn
-  hit_or_stay = nil
   loop do
-    display_cards(player_cards, dealer_cards)
-    prompt "Press [enter] to hit, or enter 'stay' or 's' to stay."
-    hit_or_stay = gets.chomp
+    system 'clear'
+    display_cards(player_cards, dealer_cards, reveal = false)
+    hit_or_stay = hit_or_stay()
     if hit_or_stay == ""
-      prompt "You chose to hit!"
-      player_cards << deck.pop
+      system 'clear'
+      prompt 'You chose to hit!'
+      prompt(MESSAGES["player_asking_another_card"], loading = true)
+      deal_cards(deck, player_cards)
+      sleep SLEEP_TIME
       if busted?(player_cards)
-        display_winner(player_cards, dealer_cards)
+        system 'clear'
+        display_results(player_cards, dealer_cards)
         break
       end
     elsif ['stay', 's'].include?(hit_or_stay.downcase)
@@ -146,15 +217,17 @@ loop do
   loop do
     break if busted?(player_cards)
     if total(dealer_cards) >= 17
-      reveal_cards(player_cards, dealer_cards)
-      display_winner(player_cards, dealer_cards)
+      system 'clear'
+      display_results(player_cards, dealer_cards)
       break
     else
+      system 'clear'
       prompt "Dealer chose to hit!"
-      dealer_cards << deck.pop
+      prompt(MESSAGES["dealer_asking_another_card"], loading = true)
+      deal_cards(deck, dealer_cards)
       if busted?(dealer_cards)
-        reveal_cards(player_cards, dealer_cards)
-        display_winner(player_cards, dealer_cards)
+        system 'clear'
+        display_results(player_cards, dealer_cards)
         break
       end
     end

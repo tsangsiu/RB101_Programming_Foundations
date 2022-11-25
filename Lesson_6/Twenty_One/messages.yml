@@ -1,0 +1,4 @@
+welcome: "Welcome to the Twenty-One game!"
+dealing_cards: "Dealing cards"
+player_asking_another_card: "Asking for another card"
+dealer_asking_another_card: "Dealer retrieving a card"
